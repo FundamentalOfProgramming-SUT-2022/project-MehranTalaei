@@ -3,6 +3,11 @@
 #include<stdlib.h>
 #include <io.h>
 
+int go_to_starter(char* s,int n)
+{
+    for(int i=0;i<n;i++)
+    *(s+i)='\0';
+}
 int check_input(char*s,int n)
 {
     char c;
@@ -191,6 +196,7 @@ int main()
     {
         //printf("PPPOOOOFFFF");
         scanf("%s",command);
+        //printf("\n=======%s=======\n",command);
         if(compare_string("createfile",command))
         {
             if(!(check_input(" --file /",9)))
@@ -233,8 +239,8 @@ int main()
             }
             char* content=read_content();
 
-            printf("\n%s\n",content);
-            printf("%s\n",address);
+            //printf("\n%s\n",content);
+            //printf("%s\n",address);
             /////////////////////////////////////////////////////////////////////////////////////////
             char check=getchar();
             if(check==' ')
@@ -359,6 +365,8 @@ int main()
             }
             printf("\n");
         }       
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         if(compare_string("removestr",command))
         {
             if(!(check_input(" --file /",9)))
@@ -498,6 +506,8 @@ int main()
                 continue;
             }
         }
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         if(compare_string("copystr",command))
         {
             if(!(check_input(" --file /",9)))
@@ -617,10 +627,167 @@ int main()
                     printf("\ninghadr char nadare! az paeen kam miare\n");
                     continue;
                 }
-                for(int i=size_of_before-size;i<size_of_before-size;i++)
+                for(int i=size_of_before-size;i<size_of_before;i++)
                 {
-                    clipboard[i]=*(before+i);
+                    clipboard[i-size_of_before+size]=*(before+i);
                 }
+            }
+            else
+            {
+                printf("\nvoorodi eshtebah\n");
+                continue;
+            }
+            //printf("\n");
+            printf("\n%s\n",clipboard);
+            continue;
+        }
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        if(compare_string("cutstr",command))
+        {
+            if(!(check_input(" --file /",9)))
+            {
+                printf("\ndorost voroodi bede dige0\n");
+                continue;
+            }
+
+            char *address=give_me_me_the_address_bastard();
+            if(!(exists(address)))
+            {
+                printf("\naddress kharab\n");
+                continue;
+            }
+
+            if(!(check_input("-pos ",5)))
+            {
+                printf("\ndorost voroodi bede dige1\n");
+                continue;
+            }
+            int line_number,start_position;
+            scanf("%d",&line_number);
+
+            if(!(check_input(":",1)))
+            {
+                printf("\ndorost voroodi bede dige2\n");
+                continue;
+            }
+
+            scanf("%d",&start_position);
+
+            if(!(check_input(" -size ",7)))
+            {
+                printf("\ndorost voroodi bede dige2\n");
+                continue;
+            }
+
+            int size;
+            scanf("%d",&size);
+
+            if(!(check_input(" -",2)))
+            {
+                printf("\ndorost voroodi bede dige3\n");
+                continue;
+            }
+            
+            char direction=getchar();
+
+            FILE* mainfile;
+            mainfile=fopen(address,"r");
+            //FILE* result=fopen(address,"w");
+            int current_line=1;
+            int current_position=0;
+            char c;
+            char* before=starter(2000);
+            char* after=starter(2000);
+            int i=0;
+            int j=0;
+            int flag=1;
+            int size_of_after=0;
+            int size_of_before=0;
+            while(current_line!=line_number || current_position!=start_position)
+            {
+                c=fgetc(mainfile);
+                //printf("  %c  ",c);
+                *(before+i)=c;
+                if(c==EOF)
+                {
+                    flag=0;
+                    break;
+                }
+                else if(c=='\n')
+                {
+                    current_line++;
+                    current_position=0;
+                    i++;
+                    size_of_before++;
+                }
+                else 
+                {
+                    current_position++;
+                    i++;
+                    size_of_before++;
+                }
+            }
+            if(!flag)
+            {
+                printf("\nmage man ba to shookhi daram. inhame khat ro bokon to halghet\n");
+                continue;
+            }
+            while(((c=fgetc(mainfile))!=EOF))
+            {
+                //printf("*%c",c);
+                *(after+j)=c;
+                j++;
+                size_of_after++;
+            }
+            fclose(mainfile);
+            
+            //printf("\n%s\n%s\n",before,after);
+            //printf("%d\n",size);
+            ///////////////////neveshtan
+            mainfile=fopen(address,"w");
+            go_to_starter(clipboard,8000);
+            if(direction=='f')
+            {
+                if(size_of_after<size)
+                {
+                    printf("\ninghadr char nadare! az bala kam miare\n");
+                    fclose(mainfile);
+                    continue;
+                }
+                fputs(before,mainfile);
+                for(int i=size;i<size_of_after;i++)
+                {
+                    fputc(*(after+i),mainfile);
+                }
+                fclose(mainfile);
+
+                for(int i=0;i<size;i++)
+                {
+                    clipboard[i]=*(after+i);
+                }
+
+            }
+            else if(direction=='b')
+            {
+                if(size_of_before<size)
+                {
+                    printf("\ninghadr char nadare! az paeen kam miare\n");
+                    fclose(mainfile);
+                    continue;
+                }
+                for(int i=0;i<size_of_before-size;i++)
+                {
+                    fputc(*(before+i),mainfile);
+                }
+                fputs(after,mainfile);
+                fclose(mainfile);
+
+                for(int i=size_of_before-size;i<size_of_before;i++)
+                {
+                    clipboard[i-size_of_before+size]=*(before+i);
+                }
+
             }
             else
             {
@@ -629,8 +796,110 @@ int main()
             }
             printf("\n%s\n",clipboard);
         }
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        if(compare_string("pastestr",command))
+        {
+             if(!(check_input(" --file /",9)))
+            {
+                printf("\ndorost voroodi bede dige0\n");
+                continue;
+            }
+
+            char *address=give_me_me_the_address_bastard();
+            if(!(exists(address)))
+            {
+                printf("\naddress kharab\n");
+                continue;
+            }
+
+            if(!(check_input("-pos ",5)))
+            {
+                printf("\ndorost voroodi bede dige1\n");
+                continue;
+            }
+            int line_number,start_position;
+            scanf("%d",&line_number);
+
+            if(!(check_input(":",1)))
+            {
+                printf("\ndorost voroodi bede dige2\n");
+                continue;
+            }
+
+            scanf("%d",&start_position);
+
+
+            FILE* mainfile;
+            mainfile=fopen(address,"r");
+            //FILE* result=fopen(address,"w");
+            int current_line=1;
+            int current_position=0;
+            char c;
+            char* before=starter(2000);
+            char* after=starter(2000);
+            int i=0;
+            int j=0;
+            int flag=1;
+            int size_of_after=0;
+            int size_of_before=0;
+            while(current_line!=line_number || current_position!=start_position)
+            {
+                c=fgetc(mainfile);
+                //printf("  %c  ",c);
+                *(before+i)=c;
+                if(c==EOF)
+                {
+                    flag=0;
+                    break;
+                }
+                else if(c=='\n')
+                {
+                    current_line++;
+                    current_position=0;
+                    i++;
+                    size_of_before++;
+                }
+                else 
+                {
+                    current_position++;
+                    i++;
+                    size_of_before++;
+                }
+            }
+            if(!flag)
+            {
+                printf("\nmage man ba to shookhi daram. inhame khat ro bokon to halghet\n");
+                continue;
+            }
+            while(((c=fgetc(mainfile))!=EOF))
+            {
+                //printf("*%c",c);
+                *(after+j)=c;
+                j++;
+                size_of_after++;
+            }
+            fclose(mainfile);
+
+
+            mainfile=fopen(address,"w");
+            fputs(before,mainfile);
+            fputs(clipboard,mainfile);
+            fputs(after,mainfile);
+            fclose(mainfile);
+
+        }
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        if(compare_string("find",command))
+        {
+            
+        }
         else
-        return 0;
+        {
+            printf("\ntamooom shod. boro birooon\n");
+            break;
+        }
     }
     return 0;
 }
