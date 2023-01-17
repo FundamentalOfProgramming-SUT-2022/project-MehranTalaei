@@ -235,6 +235,7 @@ char* read_content2()
             if(c=='*')
             {
                 *(ans+i)=1;
+                i++;
             }
             else if(c=='\\')
             {
@@ -316,10 +317,90 @@ char* read_content2()
     }
     return ans;
 }
+char* read_content3()
+{
+    char* ans=(char*)malloc(sizeof(char)*4000);
+    for(int i=0;i<4000;i++)
+    *(ans+i)='\0';
+    char d='\0';
+    int i=0;
+    char c=getchar();
+    if(c=='"')
+    {
+        while((c=getchar())!='"')
+        {
+            if(c=='\\')
+            {
+                d=getchar();
+                if(d=='\\')
+                {
+                    *(ans+i)='\\';
+                    i++;
+                    *(ans+i)=getchar();
+                    i++;
+                }
+                if(d=='n')
+                {
+                    *(ans+i)='\n';
+                    i++;
+                }
+                if(d=='"')
+                {
+                    *(ans+i)='"';
+                    i++;
+                }
+            }
+            else
+            {
+                *(ans+i)=c;
+                i++;
+            }
+        }
+        getchar();
+    }
+    else
+    {
+        *(ans+i)=c;
+        i++;
+        while((c=getchar())!=' ' && c!='\n')
+        {
+            if(c=='\\')
+            {
+                d=getchar();
+                if(d=='\\')
+                {
+                    *(ans+i)='\\';
+                    i++;
+                    *(ans+i)=getchar();
+                    i++;
+                }
+                if(d=='n')
+                {
+                    *(ans+i)='\n';
+                    i++;
+                }
+                if(d=='"')
+                {
+                    *(ans+i)='"';
+                    i++;
+                }
+            }
+            else
+            {
+                *(ans+i)=c;
+                i++;
+            }
+        }
+    }
+    return ans;
+}
+
 struct apperence{
     int char_number;
     int word_number;
     int pos_in_string;
+    int line_number;
+    int size;
 };
 void struct_starter (struct apperence array[],int n )
 {
@@ -328,8 +409,11 @@ void struct_starter (struct apperence array[],int n )
         array[i].char_number=-1;
         array[i].pos_in_string=-1;
         array[i].word_number=-1;
+        array[i].line_number=-1;
+        array[i].size=-1;
     }
 }
+
 int search_for_string_at(char * main_string,char* target_string,int i)
 {
     for(int j=0;*(target_string+j)!='\0';j++)
@@ -341,6 +425,7 @@ int search_for_string_at(char * main_string,char* target_string,int i)
     }
     return 1;
 }
+
 struct apperence find_the_first_occurence(char* main_string,char* target_string,int after_char,int after_word,char starter_char)//0 base
 {
     struct apperence ans;
@@ -365,8 +450,10 @@ struct apperence find_the_first_occurence(char* main_string,char* target_string,
         last_char=*(main_string+i);
     }
 }
-void find_all_occurence(char * main_string,char* target_string,struct apperence array[MAX_OCCUR])
+
+void find_all_occurence1(char * main_string,char* target_string,struct apperence array[MAX_OCCUR])
 {
+    int line_num=1;
     int pos=0;//0 base
     int word_num=0;
     int char_num=0;
@@ -378,6 +465,7 @@ void find_all_occurence(char * main_string,char* target_string,struct apperence 
     {
         //printf("target of 0 is 1\n");
         struct apperence last_space;
+        last_space.line_number=1;
         last_space.char_number=0;
         last_space.word_number=0;
         last_space.pos_in_string=-1;
@@ -395,6 +483,12 @@ void find_all_occurence(char * main_string,char* target_string,struct apperence 
                 word_num++;
             }
 
+            if(main_string[i]=='\n')
+            {
+                line_num++;
+                pos=0;
+            }
+
             if(main_string[i]!=' '&&main_string[i]!='\n')
             char_num++;
             else
@@ -402,6 +496,7 @@ void find_all_occurence(char * main_string,char* target_string,struct apperence 
                 last_space.char_number=char_num;
                 last_space.word_number=word_num;
                 last_space.pos_in_string=pos;
+                last_space.line_number=line_num;
             }
 
             if(search_for_string_at(main_string,target_string,i))
@@ -411,6 +506,7 @@ void find_all_occurence(char * main_string,char* target_string,struct apperence 
                         array[apperence_num].char_number=last_space.char_number+1;
                         array[apperence_num].word_number=last_space.word_number+1;
                         array[apperence_num].pos_in_string=last_space.pos_in_string+1;
+                        array[apperence_num].line_number=last_space.line_number;
                         //printf("=== %d %d ===",array[apperence_num].char_number,array[apperence_num].word_number);
                         apperence_num++;
                     }
@@ -418,8 +514,9 @@ void find_all_occurence(char * main_string,char* target_string,struct apperence 
 
             
             last_char=main_string[i];
-            i++;
+            if(main_string[i]!='\n')
             pos++;
+            i++;
         }
     }
     /////////////////////////////////////////////////////////////////////////////
@@ -436,6 +533,12 @@ void find_all_occurence(char * main_string,char* target_string,struct apperence 
                 word_num++;
             }
 
+            if(main_string[i]=='\n')
+            {
+                line_num++;
+                pos=0;
+            }
+
             if(main_string[i]!=' '&&main_string[i]!='\n')
             char_num++;
 
@@ -447,6 +550,7 @@ void find_all_occurence(char * main_string,char* target_string,struct apperence 
                         array[apperence_num].char_number=char_num;
                         array[apperence_num].word_number=word_num;
                         array[apperence_num].pos_in_string=pos;
+                        array[apperence_num].line_number=line_num;
                         //printf("=== %d %d ===",array[apperence_num].char_number,array[apperence_num].word_number);
                         apperence_num++;
                 }
@@ -454,8 +558,9 @@ void find_all_occurence(char * main_string,char* target_string,struct apperence 
 
             
             last_char=main_string[i];
-            i++;
+            if(main_string[i]!='\n')
             pos++;
+            i++;
         }
     }
     ////////////////////////////////////////////////////////////////////////////
@@ -468,6 +573,12 @@ void find_all_occurence(char * main_string,char* target_string,struct apperence 
             {
                 if(main_string[i+1]!=' '&&main_string[i+1]!='\n')
                 word_num++;
+            }
+
+            if(main_string[i]=='\n')
+            {
+                line_num++;
+                pos=0;
             }
 
             if(main_string[i]!=' '&&main_string[i]!='\n')
@@ -483,6 +594,7 @@ void find_all_occurence(char * main_string,char* target_string,struct apperence 
                         array[apperence_num].char_number=char_num;
                         array[apperence_num].word_number=word_num;
                         array[apperence_num].pos_in_string=pos;
+                        array[apperence_num].line_number=line_num;
                         //printf("=== %d %d ===",array[apperence_num].char_number,array[apperence_num].word_number);
                         apperence_num++;
                     }
@@ -491,11 +603,380 @@ void find_all_occurence(char * main_string,char* target_string,struct apperence 
 
             
             last_char=main_string[i];
-            i++;
+            if(main_string[i]!='\n')
             pos++;
+            i++;
         }
     }
 }
+
+
+int Namooos_search_for_string_at(char * main_string,char* target_string,int shift,int* extra_char)
+{
+    (*extra_char)=0;
+    int j=0;
+    int loc_of_main=j+shift;
+    if(shift>0 && main_string[shift-1]!=' ' && main_string[shift-1]!='\n')
+    return 0;
+    while(*(target_string+j)!='\0')
+    {
+        //printf("i am in while");
+        //printf("\n j is %d",j);
+        char last_char=' ';
+        if(target_string[j]==1)
+        {
+
+            //printf(" whith star \n");
+            //printf("its target:%c  its main:%c \n ",*(target_string+j),main_string[loc_of_main]);
+
+
+            if( j==0|| target_string[j-1]=='\n' ||target_string[j-1]==' ')//??
+            {
+
+                int size=0;
+                for(int s=j+1;target_string[s]!=' '&&target_string[s]!='\n'&&target_string[s]!='\0';s++)
+                size++;
+                //printf("size: %d    ",size);
+
+                while(main_string[loc_of_main+1]!=' ' && main_string[loc_of_main+1]!='\n' && main_string[loc_of_main+1]!='\0')
+                {
+                    //printf(" i am adding size         ");
+                    loc_of_main++;
+                    //shift++;
+                    (*extra_char)++;
+                }
+                //shift-=(size+1);
+                //printf(" char - size = %d - %d",*extra_char,size);
+                (*extra_char)-=(size);
+                j=j+size;
+                //printf("\n j is %d",j);
+
+                for(int i=0;i<size;i++)
+                {
+                    if(main_string[loc_of_main-i]!=target_string[j-i])
+                    return 0;
+                }
+
+                j++;//??????
+                loc_of_main++;
+                //*(extra_char)++;///????????????????????????????????????????????
+            }
+            if(target_string[j+1]==' '|| target_string[j+1]=='\n' || target_string[j+1]=='\0'||target_string[j+1]==EOF)
+            {
+                //printf("**");
+                j++;
+                while(main_string[loc_of_main]!=' '&&main_string[loc_of_main]!='\n'&&main_string[loc_of_main]!='\0')   
+                {
+                    loc_of_main++;
+                    (*extra_char)++;
+                }
+                (*extra_char)--;
+            }
+        }
+        else if(*(target_string+j)==*(main_string+loc_of_main))
+        {
+            j++;
+            loc_of_main++;
+            //printf(" whithout star \n");
+            //printf("its target:%c  its main:%c \n ",*(target_string+j),main_string[loc_of_main]);
+            continue;
+        }
+        else
+        return 0;
+    }
+    if(main_string[loc_of_main]!=' '&&main_string[loc_of_main]!='\n'&&main_string[loc_of_main]!='\0'&&main_string[loc_of_main]!=EOF)
+    return 0;
+    else
+    return 1;
+}
+
+
+
+int Namooos_search_for_string_at_bad(char * main_string,char* target_string,int shift,int* extra_char)
+{
+    int last_mod=0;
+    (*extra_char)=0;
+    int j=0;
+    int loc_of_main=j+shift;
+    if(shift>0 && main_string[shift-1]!=' ' && main_string[shift-1]!='\n')
+    return 0;
+    while(*(target_string+j)!='\0')
+    {
+        //printf("i am in while");
+        //printf("\n j is %d",j);
+        char last_char=' ';
+        if(target_string[j]==1)
+        {
+            
+            //printf(" whith star \n");
+            //printf("its target:%c  its main:%c \n ",*(target_string+j),main_string[loc_of_main]);
+
+
+            if( j==0|| target_string[j-1]=='\n' ||target_string[j-1]==' ')//??
+            {
+
+                int size=0;
+                for(int s=j+1;target_string[s]!=' '&&target_string[s]!='\n'&&target_string[s]!='\0';s++)
+                size++;
+                //printf("size: %d    ",size);
+
+                while(main_string[loc_of_main+1]!=' ' && main_string[loc_of_main+1]!='\n' && main_string[loc_of_main+1]!='\0')
+                {
+                    //printf(" i am adding size         ");
+                    loc_of_main++;
+                    //shift++;
+                    (*extra_char)++;
+                }
+                //shift-=(size+1);
+                //printf(" char - size = %d - %d",*extra_char,size);
+                (*extra_char)-=(size);
+                j=j+size;
+                //printf("\n j is %d",j);
+
+                for(int i=0;i<size;i++)
+                {
+                    if(main_string[loc_of_main-i]!=target_string[j-i])
+                    return 0;
+                }
+                //last_mod=1;
+                j++;//??????
+                loc_of_main++;
+                //printf("(%d)",*extra_char);
+                //*(extra_char)++;///????????????????????????????????????????????
+            }
+            else if(target_string[j+1]==' '|| target_string[j+1]=='\n' || target_string[j+1]=='\0'||target_string[j+1]==EOF)
+            {
+                //last_mod=0;
+                //printf("**");
+                j++;
+                while(main_string[loc_of_main]!=' '&&main_string[loc_of_main]!='\n'&&main_string[loc_of_main]!='\0')   
+                {
+                    loc_of_main++;
+                    (*extra_char)++;
+                }
+                (*extra_char)--;
+            }
+        }
+        else if(*(target_string+j)==*(main_string+loc_of_main))
+        {
+            j++;
+            loc_of_main++;
+            //last_mod=0;
+            //printf(" whithout star \n");
+            //printf("its target:%c  its main:%c \n ",*(target_string+j),main_string[loc_of_main]);
+            continue;
+        }
+        else
+        return 0;
+    }
+    if(main_string[loc_of_main]!=' '&&main_string[loc_of_main]!='\n'&&main_string[loc_of_main]!='\0'&&main_string[loc_of_main]!=EOF)
+    return 0;
+    else
+    {
+        // if(last_mod)
+        // (*extra_char)++;
+        return 1;
+    }
+}
+
+
+
+
+
+void find_all_occurence_Namooos(char * main_string,char* target_string,struct apperence array[])
+{
+    int pos=0;//0 base
+    int line_num=1;
+    int word_num=0;
+    int char_num=0;
+    int extra_num=0;
+    int size=size_of_array(target_string);
+    char last_char=' ';
+    int apperence_num=0;
+    int i=0;
+    while(main_string[i]!='\0')
+    {
+            //printf("==(in  for i=%d  its %c)==",i,main_string[i]);
+        if(last_char==' '||last_char=='\n')
+            {
+                if(main_string[i+1]!=' '&&main_string[i+1]!='\n')
+                word_num++;
+            }
+
+            if(main_string[i]=='\n')
+            {
+                line_num++;
+                pos=0;
+            }
+
+            if(main_string[i]!=' '&&main_string[i]!='\n')
+            char_num++;
+
+            extra_num=0;
+            if(Namooos_search_for_string_at_bad(main_string,target_string,i,&extra_num))
+            {
+                //printf("   extra>>>>%d  ",extra_num);
+                array[apperence_num].char_number=char_num;
+                array[apperence_num].word_number=word_num;
+                array[apperence_num].pos_in_string=pos;
+                array[apperence_num].line_number=line_num;
+                array[apperence_num].size=size+extra_num;
+                //printf("=== %d %d ===",array[apperence_num].char_number,array[apperence_num].word_number);
+                apperence_num++;
+            }
+
+
+
+
+
+        ///////////////////////////////////////
+        last_char=main_string[i];
+        if(main_string[i]!='\n')
+        pos++;
+        i++;
+    }
+
+}
+
+
+
+int remove_from_file(int line_number,int start_position,char* address,int size,char direction)
+{
+    //printf("i am coming\n");
+     FILE* mainfile;
+     mainfile=fopen(address,"r");
+
+    int current_line=1;
+            int current_position=0;
+            char c;
+            char* before=starter(2000);
+            char* after=starter(2000);
+            int i=0;
+            int j=0;
+            int flag=1;
+            int size_of_after=0;
+            int size_of_before=0;
+            while(current_line!=line_number || current_position!=start_position)
+            {
+                c=fgetc(mainfile);
+                //printf("  %c  ",c);
+                *(before+i)=c;
+                if(c==EOF)
+                {
+                    flag=0;
+                    return 0;
+                }
+                else if(c=='\n')
+                {
+                    current_line++;
+                    current_position=0;
+                    i++;
+                    size_of_before++;
+                }
+                else 
+                {
+                    current_position++;
+                    i++;
+                    size_of_before++;
+                }
+            }
+
+            while(((c=fgetc(mainfile))!=EOF))
+            {
+                //printf("*%c",c);
+                *(after+j)=c;
+                j++;
+                size_of_after++;
+            }
+            fclose(mainfile);
+            
+            //printf("\n%s\n%s\n",before,after);
+            //printf("%d\n",size);
+            ///////////////////neveshtan
+            mainfile=fopen(address,"w");
+            if(direction=='f')
+            {
+                if(size_of_after<size)
+                {
+                    return 0;
+                }
+                fputs(before,mainfile);
+                for(int i=size;i<size_of_after;i++)
+                {
+                    fputc(*(after+i),mainfile);
+                }
+                fclose(mainfile);
+            }
+            else if(direction=='b')
+            {
+                if(size_of_before<size)
+                {
+                    return 0;
+                }
+                for(int i=0;i<size_of_before-size;i++)
+                {
+                    fputc(*(before+i),mainfile);
+                }
+                fputs(after,mainfile);
+                fclose(mainfile);
+            }
+            return 1;
+}
+int insert_in_file(int line_number,int start_position,char* address,char* content)
+{
+    FILE* mainfile;
+            mainfile=fopen(address,"r");
+            //FILE* result=fopen(address,"w");
+            int current_line=1;
+            int current_position=0;
+            char c;
+            char* before=starter(2000);
+            char* after=starter(2000);
+            int i=0;
+            int j=0;
+            int flag=1;
+            while(current_line!=line_number || current_position!=start_position)
+            {
+                c=fgetc(mainfile);
+                //printf("  %c  ",c);
+                *(before+i)=c;
+                if(c==EOF)
+                {
+                    flag=0;
+                    return 0;
+                }
+                else if(c=='\n')
+                {
+                    current_line++;
+                    current_position=0;
+                    i++;
+                }
+                else 
+                {
+                    current_position++;
+                    i++;
+                }
+            }
+            
+            while(((c=fgetc(mainfile))!=EOF))
+            {
+                //printf("*%c",c);
+                *(after+j)=c;
+                j++;
+            }
+            fclose(mainfile);
+
+            //printf("\n%s   \n%s\n",before,after);
+
+            mainfile=fopen(address,"w");
+            fputs(before,mainfile);
+            fputs(content,mainfile);
+            fputs(after,mainfile);
+            fclose(mainfile);
+            return 1;
+}
+
+
 
 int main()
 {
@@ -1257,7 +1738,7 @@ int main()
             }
             struct apperence all_of_wanted[MAX_OCCUR];
             struct_starter(all_of_wanted,MAX_OCCUR);
-            find_all_occurence(in_the_file,target,all_of_wanted);
+            find_all_occurence_Namooos(in_the_file,target,all_of_wanted);
             fclose(file);
             printf("content of file: %s\n",in_the_file);
             ////////////////////////////////////////////////////////////////////////
@@ -1414,10 +1895,144 @@ int main()
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
+        if(compare_string("replace",command))
+        {
+            if(!(check_input(" --str1 ",8)))
+            {
+                printf("\ndorost voroodi bede dige7\n");
+                continue;
+            }
+            char *first_string=read_content2();
+
+            if(!(check_input("--str2 ",7)))
+            {
+                printf("\ndorost voroodi bede dige7\n");
+                continue;
+            }
+            char* second_string=read_content3();
+
+            if(!(check_input("--file /",8)))
+            {
+                printf("dorost voroodi bede dige7\n");
+                while(getchar()!='\n');
+                continue;
+            }
+
+            int flag;
+            char* address=give_me_me_the_address_bastard2(&flag);
+            if(!exists(address))
+            {
+                printf("\naddress kharab\n");
+                continue;
+            }
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+            char* in_the_file=starter(10000);
+            FILE* file;
+            //file=fopen(address,"w");
+            //fputs("hohohoho Salam Salam",file);
+            //fclose(file);
+            file=fopen(address,"r");
+            int i=0;
+            char u;
+            while((u=fgetc(file))!=EOF)
+            {
+                in_the_file[i]=u;
+                i++;
+            }
+            struct apperence all_of_wanted[MAX_OCCUR];
+            struct_starter(all_of_wanted,MAX_OCCUR);
+            find_all_occurence_Namooos(in_the_file,first_string,all_of_wanted);
+            fclose(file);
+
+            printf("wanted : %s\n",first_string);
+            printf("content of file: %s\n",in_the_file);
+
+
+
+
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            if(flag)
+            {
+                char first_switch[100];
+                scanf("%s",first_switch);
+                if(compare_string(first_switch,"at"))
+                {
+                    getchar();
+                    int num_wanted;
+                    scanf("%d",&num_wanted);
+                    if(all_of_wanted[num_wanted-1].char_number==-1)
+                    {
+                        printf("peida noshod\n");
+                        continue;
+                    }
+                    else
+                    {
+                        remove_from_file(all_of_wanted[num_wanted-1].line_number,all_of_wanted[num_wanted-1].pos_in_string,address,all_of_wanted[num_wanted-1].size,'f');
+                        insert_in_file(all_of_wanted[num_wanted-1].line_number,all_of_wanted[num_wanted-1].pos_in_string,address,second_string);
+                        continue;
+                    }
+                }
+                if(compare_string(first_switch,"all"))
+                {
+                    //getchar();
+                    int l=0;
+                    while(all_of_wanted[l].char_number!=-1)
+                    {
+                        //printf("===== %d =====",all_of_wanted[l].size);
+                        //printf("khaste nabashid \n");
+                        remove_from_file(all_of_wanted[l].line_number,all_of_wanted[l].pos_in_string,address,all_of_wanted[l].size,'f');
+                        insert_in_file(all_of_wanted[l].line_number,all_of_wanted[l].pos_in_string,address,second_string);
+                        ///////////////////////////////////////////////////////////////////////////////////////////////
+
+                        char* in_the_file=starter(10000);
+                        FILE* file;
+                        //file=fopen(address,"w");
+                        //fputs("hohohoho Salam Salam",file);
+                        //fclose(file);
+                        file=fopen(address,"r");
+                        int i=0;
+                        char u;
+                        while((u=fgetc(file))!=EOF)
+                        {
+                            in_the_file[i]=u;
+                            i++;
+                        }
+                        //struct apperence all_of_wanted[MAX_OCCUR];
+                        struct_starter(all_of_wanted,MAX_OCCUR);
+                        find_all_occurence_Namooos(in_the_file,first_string,all_of_wanted);
+                        fclose(file);
+                        //printf("content of file: %s\n",in_the_file);
+
+
+
+                        ///////////////////////////////////////////////////////////////////////////////////////////////
+                        l++;
+                    }
+                    continue;
+                }
+                else
+                {
+                     printf("dorost voroodi bede dige7\n");
+                    while(getchar()!='\n');
+                    continue;
+                }
+            }
+            else
+            {
+                //getchar();
+                int num_wanted=1;
+                remove_from_file(all_of_wanted[num_wanted-1].line_number,all_of_wanted[num_wanted-1].pos_in_string,address,all_of_wanted[num_wanted-1].size,'f');
+                insert_in_file(all_of_wanted[num_wanted-1].line_number,all_of_wanted[num_wanted-1].pos_in_string,address,second_string);
+                continue;
+            }
+        }
         else
         {
             printf("\ntamooom shod. boro birooon\n");
-            break;
+            //break;
         }
     }
     return 0;
