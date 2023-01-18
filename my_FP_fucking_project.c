@@ -45,6 +45,12 @@ int exists(char *file_name)
     }
     return 0;
 }
+void occurence_starter(int occurence[],int n)
+{
+    for(int i=0;i<n;i++)
+    occurence[i]=-1;
+}
+
 char delete_spaces()
 {
     char c;
@@ -116,7 +122,30 @@ char* give_me_me_the_address_bastard2(int *flag)
     //}
 }
 
-
+char* give_me_me_the_address_bastard3(int *flag)
+{
+    char * address=(char *)malloc(sizeof(char)*120);
+    for(int i=0;i<120;i++)
+    *(address+i)='\0';
+    //if((*address=getchar())!='"')
+    //{
+        char c;
+        int i=0;
+        while((c=getchar())!='\n' && c!=' ')
+        {
+            if(c!='"');
+            {
+                *(address+i)=c;
+                i++;
+            }
+        }
+        if(c=='\n')
+        *flag=0;
+        if(c==' ')
+        *flag=1;
+        return address;
+    //}
+}
 
 
 void make_address_available(char* address)
@@ -425,6 +454,51 @@ int search_for_string_at(char * main_string,char* target_string,int i)
     }
     return 1;
 }
+
+void find_lines_of_occurence(char* main_string,char* target_string,int occurences[100])
+{
+    int i=0;
+    int line_number=1;
+    int counter=0;
+    while(main_string[i]!='\0')
+    {
+        if(main_string[i]=='\n')
+        {
+            line_number++;
+        }
+
+        if(search_for_string_at(main_string,target_string,i))
+        {
+            occurences[counter]=line_number;
+            counter++;
+        }
+
+        i++;
+    }
+}
+
+void khat_k_chap_kon(char* chert,int k)
+{
+    int line_num=1;
+    int i=0;
+    while(chert[i]!='\0')
+    {
+        if(line_num==k)
+        {
+            while(chert[i]!='\n'&&chert[i]!='\0')
+            {
+                printf("%c",chert[i]);
+                i++;
+            }
+            break;
+        }
+        if(chert[i]=='\n')
+        line_num++;
+        i++;
+    }
+
+}
+
 
 struct apperence find_the_first_occurence(char* main_string,char* target_string,int after_char,int after_word,char starter_char)//0 base
 {
@@ -2029,11 +2103,165 @@ int main()
                 continue;
             }
         }
+        if(compare_string("grep",command))
+        {
+            getchar();
+            char a=getchar();
+            char b=getchar();
+            int type=0;
+            if(a!='-')
+            {
+                printf("\ndorost voroodi bede dige7\n");
+                continue;
+            }
+
+
+            else if(b=='c'){
+            type=1;
+            if(!(check_input(" --str ",7)))
+            {
+                printf("\ndorost voroodi bede dige7\n");
+                continue;
+            }
+            }
+
+            else if(b=='l'){
+            type=2;
+            if(!(check_input(" --str ",7)))
+            {
+                printf("\ndorost voroodi bede dige7\n");
+                continue;
+            }
+            }
+
+            else if(b=='-'){
+            if(!(check_input("str ",4)))
+            {
+                printf("\ndorost voroodi bede dige7\n");
+                continue;
+            }
+            type==0;
+            }
+
+            else
+            {
+                printf("\ndorost voroodi bede dige7\n");
+                continue;
+            }
+
+            char* target=read_content3();
+
+            if(!(check_input("--files ",8)))
+            {
+                printf("\ndorost voroodi bede dige7\n");
+                continue;
+            }
+            //printf("%s\n",target);
+
+
+            int flag=1;
+            int files_occurence[100]={0};
+            int lines_occurences[100];
+            char* addresses[100];
+            int number_of_files=0;
+            while(flag)
+            {
+                addresses[number_of_files]=give_me_me_the_address_bastard3(&flag);
+                //printf("%s\n",addresses[number_of_files]);
+                number_of_files++;
+            }
+
+
+            char* content_of_file[100];
+            for(int i=0;i<number_of_files;i++)
+            {
+                //////////////////////////////////////////////////////
+                
+                content_of_file[i]=starter(10000);
+                FILE* file;
+                //file=fopen(address,"w");
+                //fputs("hohohoho Salam Salam",file);
+                //fclose(file);
+                file=fopen(addresses[i],"r");
+                int j=0;
+                char u;
+                while((u=fgetc(file))!=EOF)
+                {
+                    content_of_file[i][j]=u;
+                    j++;
+                }
+                fclose(file);
+                printf("%s\n================================================\n",content_of_file[i]);
+                
+                //////////////////////////////////////////////////////
+            }
+
+        
+            if(type==0)
+            {
+                for(int i=0;i<number_of_files;i++)
+                {
+                
+
+                occurence_starter(lines_occurences,100);
+                find_lines_of_occurence(content_of_file[i],target,lines_occurences);
+
+                if(lines_occurences[0]!=-1)
+                files_occurence[i]=1;
+
+                int s=0;
+                while(lines_occurences[s]!=-1)
+                {
+                    printf("%s:",addresses[i]);
+                    khat_k_chap_kon(content_of_file[i],lines_occurences[s]);
+                    printf("\n");
+                    s++;
+                }
+                }
+                continue;
+            }
+
+            if(type==1)
+            {
+                int ans=0;
+                for(int i=0;i<number_of_files;i++)
+                {
+                    occurence_starter(lines_occurences,100);
+                    find_lines_of_occurence(content_of_file[i],target,lines_occurences);
+                
+
+                    int s=0;
+                    while(lines_occurences[s]!=-1)
+                    {
+                        ans++;
+                        s++;
+                    }
+                }
+
+                printf("%d\n",ans);
+                continue;
+            }
+
+            if(type==2)
+            {
+                for(int i=0;i<number_of_files;i++)
+                {
+                    if(files_occurence[i]!=-1)
+                    printf("%s ",addresses[i]);
+                }
+                printf("\n");
+                continue;
+            }
+
+
+        }
         else
         {
             printf("\ntamooom shod. boro birooon\n");
             //break;
         }
+
+
     }
     return 0;
 }
