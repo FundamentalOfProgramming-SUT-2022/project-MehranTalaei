@@ -2,6 +2,7 @@
 #include<string.h>
 #include<stdlib.h>
 #include <io.h>
+#include<dirent.h>
 #define MAX_OCCUR 10000
 int size_of_array(char* string)
 {
@@ -50,7 +51,6 @@ void occurence_starter(int occurence[],int n)
     for(int i=0;i<n;i++)
     occurence[i]=-1;
 }
-
 char delete_spaces()
 {
     char c;
@@ -78,7 +78,7 @@ int compare_string(char* str1,char* str2)
 }
 char* give_me_me_the_address_bastard()
 {
-    char * address=(char *)malloc(sizeof(char)*120);
+    char * address=starter(120);
     for(int i=0;i<120;i++)
     *(address+i)='\0';
     //if((*address=getchar())!='"')
@@ -93,10 +93,12 @@ char* give_me_me_the_address_bastard()
                 i++;
             }
         }
+        int n=size_of_array(address);
+        if(c!='\n')
+        address[n]='\0';
         return address;
     //}
 }
-
 char* give_me_me_the_address_bastard2(int *flag)
 {
     char * address=(char *)malloc(sizeof(char)*120);
@@ -121,7 +123,6 @@ char* give_me_me_the_address_bastard2(int *flag)
         return address;
     //}
 }
-
 char* give_me_me_the_address_bastard3(int *flag)
 {
     char * address=(char *)malloc(sizeof(char)*120);
@@ -146,8 +147,6 @@ char* give_me_me_the_address_bastard3(int *flag)
         return address;
     //}
 }
-
-
 void make_address_available(char* address)
 {
     //printf("im in");
@@ -423,7 +422,21 @@ char* read_content3()
     }
     return ans;
 }
-
+char* content_of_file(char* address,int max_size)
+{
+	FILE* file;
+	char* ans=starter(max_size);
+	file=fopen(address,"r");
+                int v=0;
+                char u;
+                while((u=fgetc(file))!=EOF)
+                {
+                    ans[v]=u;
+                    v++;
+                }
+                fclose(file);
+	return ans;
+}
 struct apperence{
     int char_number;
     int word_number;
@@ -442,7 +455,6 @@ void struct_starter (struct apperence array[],int n )
         array[i].size=-1;
     }
 }
-
 int search_for_string_at(char * main_string,char* target_string,int i)
 {
     for(int j=0;*(target_string+j)!='\0';j++)
@@ -454,7 +466,6 @@ int search_for_string_at(char * main_string,char* target_string,int i)
     }
     return 1;
 }
-
 void find_lines_of_occurence(char* main_string,char* target_string,int occurences[100])
 {
     int i=0;
@@ -476,7 +487,6 @@ void find_lines_of_occurence(char* main_string,char* target_string,int occurence
         i++;
     }
 }
-
 void khat_k_chap_kon(char* chert,int k)
 {
     int line_num=1;
@@ -498,8 +508,6 @@ void khat_k_chap_kon(char* chert,int k)
     }
 
 }
-
-
 struct apperence find_the_first_occurence(char* main_string,char* target_string,int after_char,int after_word,char starter_char)//0 base
 {
     struct apperence ans;
@@ -524,7 +532,12 @@ struct apperence find_the_first_occurence(char* main_string,char* target_string,
         last_char=*(main_string+i);
     }
 }
-
+struct file_history
+{
+    int existed;
+    char* file_address;
+    char* last_content;
+};
 void find_all_occurence1(char * main_string,char* target_string,struct apperence array[MAX_OCCUR])
 {
     int line_num=1;
@@ -683,8 +696,6 @@ void find_all_occurence1(char * main_string,char* target_string,struct apperence
         }
     }
 }
-
-
 int Namooos_search_for_string_at(char * main_string,char* target_string,int shift,int* extra_char)
 {
     (*extra_char)=0;
@@ -763,9 +774,6 @@ int Namooos_search_for_string_at(char * main_string,char* target_string,int shif
     else
     return 1;
 }
-
-
-
 int Namooos_search_for_string_at_bad(char * main_string,char* target_string,int shift,int* extra_char)
 {
     int last_mod=0;
@@ -852,11 +860,6 @@ int Namooos_search_for_string_at_bad(char * main_string,char* target_string,int 
         return 1;
     }
 }
-
-
-
-
-
 void find_all_occurence_Namooos(char * main_string,char* target_string,struct apperence array[])
 {
     int pos=0;//0 base
@@ -911,9 +914,6 @@ void find_all_occurence_Namooos(char * main_string,char* target_string,struct ap
     }
 
 }
-
-
-
 int remove_from_file(int line_number,int start_position,char* address,int size,char direction)
 {
     //printf("i am coming\n");
@@ -1049,9 +1049,8 @@ int insert_in_file(int line_number,int start_position,char* address,char* conten
             fclose(mainfile);
             return 1;
 }
-
-
-
+int shit_counter;
+struct file_history all_history[1000];
 int main()
 {
     
@@ -1079,9 +1078,16 @@ int main()
             make_address_available(address);
 
             if(exists(address))
-            printf("its already existed");
-            else
+            {
+                printf("its already existed");
+                continue;
+            }
+            else{
             create_the_foooking_file(address);
+            all_history[shit_counter].existed=0;
+            all_history[shit_counter].file_address=address;
+            }
+            continue;
 
         }
         if(compare_string("insertstr",command))
@@ -1098,6 +1104,23 @@ int main()
                 printf("\naddress kharab\n");
                 continue;
             }
+            
+            //////////////////////////////////////////////
+            char* saver=starter(10000);
+                FILE* file;
+                //file=fopen(address,"w");
+                //fputs("hohohoho Salam Salam",file);
+                //fclose(file);
+                file=fopen(address,"r");
+                int v=0;
+                char u;
+                while((u=fgetc(file))!=EOF)
+                {
+                    saver[v]=u;
+                    v++;
+                }
+                fclose(file);
+            //////////////////////////////////////////////
 
             if(!(check_input("-str ",5)))
             {
@@ -1131,26 +1154,7 @@ int main()
                 printf("\ndorost voroodi bede diger\n");
                 continue;
             }
-            /*char*buff2=starter(20);
-            int counter=0;
-            while((*(buff2+counter)=getchar())!='s');
-            {
-                counter++;
-            }
-            if(counter==4 && compare_string(buff2,"--pos"));
-            else if(counter==5 && compare_string(buff2," --pos"));
-            else
-            {
-                printf("\nvoroodi eshtebah\n");
-                continue;
-            }
-            if(!(check_input(" ",1)))
-            {
-                printf("\ndorost voroodi bede dige\n");
-                continue;
-            }
-            */
-            //////////////////////////////////////////////////////////////////////////////////////
+           
             int line_number,start_position;
             scanf("%d",&line_number);
 
@@ -1162,14 +1166,8 @@ int main()
 
             scanf("%d",&start_position);
 
-            if(!(check_input(" -size ",7)))
-            {
-                printf("\ndorost voroodi bede dige2\n");
-                continue;
-            }
-
-            printf("%d  %d",line_number,start_position);
-
+            //printf("%d  %d",line_number,start_position);
+            
             FILE* mainfile;
             mainfile=fopen(address,"r");
             //FILE* result=fopen(address,"w");
@@ -1184,10 +1182,13 @@ int main()
             while(current_line!=line_number || current_position!=start_position)
             {
                 c=fgetc(mainfile);
-                printf("  %c  ",c);
+                //printf("  %c  ",c);
                 *(before+i)=c;
                 if(c==EOF)
                 {
+                    if(line_number==current_line+1 && start_position==0)
+                    before[i]='\n';
+                    else
                     flag=0;
                     break;
                 }
@@ -1210,19 +1211,32 @@ int main()
             }
             while(((c=fgetc(mainfile))!=EOF))
             {
-                printf("*%c",c);
+                //printf("*%c",c);
                 *(after+j)=c;
                 j++;
             }
             fclose(mainfile);
 
-            printf("\n%s   \n%s\n",before,after);
+            //printf("\n%s   \n%s\n",before,after);
 
             mainfile=fopen(address,"w");
             fputs(before,mainfile);
             fputs(content,mainfile);
             fputs(after,mainfile);
             fclose(mainfile);
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+                int andis=0;
+                for(int i=0;i<shit_counter;i++)
+                {
+                    if(compare_string(all_history[i].file_address,address))
+                    andis=i;
+                }
+
+                all_history[andis].last_content=saver;
+                
+                continue;
+            //////////////////////////////////////////////////////////////////////////////////////////////////
         }
         if(compare_string("cat",command))
         {
@@ -1245,6 +1259,7 @@ int main()
                 printf("%c",c);
             }
             printf("\n");
+            continue;
         }       
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1262,6 +1277,23 @@ int main()
                 printf("\naddress kharab\n");
                 continue;
             }
+
+            //////////////////////////////////////////////
+            char* saver=starter(10000);
+                FILE* file;
+                //file=fopen(address,"w");
+                //fputs("hohohoho Salam Salam",file);
+                //fclose(file);
+                file=fopen(address,"r");
+                int v=0;
+                char u;
+                while((u=fgetc(file))!=EOF)
+                {
+                    saver[v]=u;
+                    v++;
+                }
+                fclose(file);
+            //////////////////////////////////////////////
 
             if(!(check_input("-pos ",5)))
             {
@@ -1380,6 +1412,20 @@ int main()
                 }
                 fputs(after,mainfile);
                 fclose(mainfile);
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+                int andis=0;
+                for(int i=0;i<shit_counter;i++)
+                {
+                    if(compare_string(all_history[i].file_address,address))
+                    andis=i;
+                }
+
+                all_history[andis].last_content=saver;
+                
+                
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+
+
             }
             else
             {
@@ -1539,6 +1585,23 @@ int main()
                 continue;
             }
 
+            //////////////////////////////////////////////
+            char* saver=starter(10000);
+                FILE* file;
+                //file=fopen(address,"w");
+                //fputs("hohohoho Salam Salam",file);
+                //fclose(file);
+                file=fopen(address,"r");
+                int v=0;
+                char u;
+                while((u=fgetc(file))!=EOF)
+                {
+                    saver[v]=u;
+                    v++;
+                }
+                fclose(file);
+            //////////////////////////////////////////////
+
             if(!(check_input("-pos ",5)))
             {
                 printf("\ndorost voroodi bede dige1\n");
@@ -1664,6 +1727,20 @@ int main()
                 fputs(after,mainfile);
                 fclose(mainfile);
 
+
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+                int andis=0;
+                for(int i=0;i<shit_counter;i++)
+                {
+                    if(compare_string(all_history[i].file_address,address))
+                    andis=i;
+                }
+
+                all_history[andis].last_content=saver;
+                
+                
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+
                 for(int i=size_of_before-size;i<size_of_before;i++)
                 {
                     clipboard[i-size_of_before+size]=*(before+i);
@@ -1693,6 +1770,25 @@ int main()
                 printf("\naddress kharab\n");
                 continue;
             }
+
+
+            //////////////////////////////////////////////
+            char* saver=starter(10000);
+                FILE* file;
+                //file=fopen(address,"w");
+                //fputs("hohohoho Salam Salam",file);
+                //fclose(file);
+                file=fopen(address,"r");
+                int v=0;
+                char u;
+                while((u=fgetc(file))!=EOF)
+                {
+                    saver[v]=u;
+                    v++;
+                }
+                fclose(file);
+            //////////////////////////////////////////////
+
 
             if(!(check_input("-pos ",5)))
             {
@@ -1768,7 +1864,18 @@ int main()
             fputs(clipboard,mainfile);
             fputs(after,mainfile);
             fclose(mainfile);
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+                int andis=0;
+                for(int i=0;i<shit_counter;i++)
+                {
+                    if(compare_string(all_history[i].file_address,address))
+                    andis=i;
+                }
 
+                all_history[andis].last_content=saver;
+                
+                
+            //////////////////////////////////////////////////////////////////////////////////////////////////
         }
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2255,7 +2362,544 @@ int main()
 
 
         }
-        else
+        if(compare_string("undo",command))
+        {
+              if(!(check_input(" --file /",9)))
+            {
+                printf("\ndorost voroodi bede dige0\n");
+                continue;
+            }
+
+            char *address=give_me_me_the_address_bastard();
+            if(!(exists(address)))
+            {
+                printf("\naddress kharab\n");
+                continue;
+            }
+
+
+            //////////////////////////////////////////////
+            char* saver=starter(10000);
+                FILE* file;
+                //file=fopen(address,"w");
+                //fputs("hohohoho Salam Salam",file);
+                //fclose(file);
+                file=fopen(address,"r");
+                int j=0;
+                char u;
+                while((u=fgetc(file))!=EOF)
+                {
+                    saver[j]=u;
+                    j++;
+                }
+                fclose(file);
+            //////////////////////////////////////////////
+            int andis=0;
+            for(int i=0;i<shit_counter;i++)
+            {
+                if(compare_string(all_history[i].file_address,address))
+                andis=i;
+            }
+            printf("%s\n",all_history[andis].file_address);
+            fopen(address,"w");
+            fputs(all_history[andis].last_content,file);
+            fclose(file);
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+                all_history[andis].last_content=saver;
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+            continue;
+        }
+        if(compare_string("lastContent",command))
+        {
+            if(!(check_input(" --file /",9)))
+            {
+                printf("\ndorost voroodi bede dige\n");
+                continue;
+            }
+
+            char* address=give_me_me_the_address_bastard();
+            if(!exists(address))
+            {
+                printf("\naddress kharab\n");
+                continue;
+            }
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+                int andis=0;
+                int flag=0;
+                for(int i=0;i<shit_counter;i++)
+                {
+                    if(compare_string(all_history[i].file_address,address))
+                    {
+                        andis=i;
+                        flag=1;
+                    }
+                }
+                if(flag)
+                printf("ok its founded \n");
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+            printf("(((%s)))",all_history[andis].file_address);
+            printf("\n%s\n",all_history[andis].last_content);
+
+        }
+        if(compare_string("auto_indent2",command))
+        {
+            printf("its auto \t indent\n");
+            if(!(check_input(" --file /",9)))
+            {
+                printf("\ndorost voroodi bede dige\n");
+                continue;
+            }
+
+            char* address=give_me_me_the_address_bastard();
+            if(!exists(address))
+            {
+                printf("\naddress kharab\n");
+                continue;
+            }
+
+            ///////////////////////////////////////////////////////////////
+            char* saver=starter(10000);
+                FILE* file;
+                //file=fopen(address,"w");
+                //fputs("hohohoho Salam Salam",file);
+                //fclose(file);
+                file=fopen(address,"r");
+                int v=0;
+                char u;
+                while((u=fgetc(file))!=EOF)
+                {
+                    saver[v]=u;
+                    v++;
+                }
+                fclose(file);
+            //////////////////////////////////////////////////////////////////
+            printf("%s\n",saver);
+            int i=0;
+            int pos_in_result=0;
+            int indent=0;
+            char last_char=0;
+            char* result=starter(10000);
+            while(saver[i]!='\0')
+            {
+                if(saver[i]=='{')
+                {
+                    int j=i-1;
+                    pos_in_result--;
+                    while(saver[j]==' '||saver[j]=='\t')
+                    {
+                        result[pos_in_result]='\0';
+                        if(j==0)
+                        break;
+                        j--;
+                        pos_in_result--;
+                    }
+                    if(saver[j]=='\n')
+                    {
+                        // for(int s=0;s<indent;s++)
+                        // {
+                        //     pos_in_result++;
+                        //     result[pos_in_result]='\t';
+                        // }
+                    }
+                    else
+                    {
+                        pos_in_result++;
+                        result[pos_in_result]=' ';
+                    }
+                    pos_in_result++;
+                    result[pos_in_result]='{';
+                    pos_in_result++;
+                    ////////////////////
+                    j=i;
+                    while(saver[j]==' '&&saver[j]=='\t')
+                    j++;
+                    if(saver[j]!='\n')
+                    {
+                        result[pos_in_result]='\n';
+                        pos_in_result++;
+                    }
+                    ////////////////////
+                    indent++;
+                    //result[pos_in_result]='\n';
+                    for(int s=0;s<indent;s++)
+                    {
+                        result[pos_in_result]='\t';
+                        pos_in_result++;
+                    }
+                }
+                else if(saver[i]=='}')
+                {
+                    int j=i-1;
+                    pos_in_result--;
+                    while(saver[j]==' '||saver[j]=='\t')
+                    {
+                        result[pos_in_result]='\0';
+                        if(j==0)
+                        break;
+                        j--;
+                        pos_in_result--;
+                    }
+                    if(saver[j]=='\n')
+                    {
+                        indent--;
+                        // for(int s=0;s<indent;s++)
+                        // {
+                        //     pos_in_result++;
+                        //     result[pos_in_result]='\t';
+                        // }
+                    }
+                    else
+                    {
+                        indent--;
+                        pos_in_result++;
+                        result[pos_in_result]='\n';
+                        for(int s=0;s<indent;s++)
+                        {
+                            pos_in_result++;
+                            result[pos_in_result]='\t';
+                        }
+                    }
+                    pos_in_result++;
+                    result[pos_in_result]='}';
+                    pos_in_result++;
+                    result[pos_in_result]='\n';
+                    pos_in_result++;
+                    for(int s=0;s<indent;s++)
+                    {
+                        result[pos_in_result]='\t';
+                        pos_in_result++;
+                    }
+                }
+                else if(saver[i]=='\n')
+                {
+                    result[pos_in_result]='\n';
+                    pos_in_result++;
+                    for(int s=0;s<indent;s++)
+                    {
+                        result[pos_in_result]='\t';
+                        pos_in_result++;
+                    }
+                }
+                else
+                {
+                    result[pos_in_result]=saver[i];
+                    pos_in_result++;
+                }
+                i++;
+            }
+            printf("==============\n%s\n==============\n",result);
+
+        }
+        if(compare_string("auto_indent",command))
+        {
+            //printf("its auto \t indent\n");
+            // if(!(check_input(" --file /",9)))
+            // {
+            //     printf("\ndorost voroodi bede dige\n");
+            //     continue;
+            // }
+
+            char* address=give_me_me_the_address_bastard();
+            if(!exists(address))
+            {
+                printf("\naddress kharab\n");
+                continue;
+            }
+            ///////////////////////////////////////////////////////////////
+            char* saver=starter(10000);
+                FILE* file;
+                //file=fopen(address,"w");
+                //fputs("hohohoho Salam Salam",file);
+                //fclose(file);
+                file=fopen(address,"r");
+                int v=0;
+                char u;
+                while((u=fgetc(file))!=EOF)
+                {
+                    saver[v]=u;
+                    v++;
+                }
+                fclose(file);
+            //////////////////////////////////////////////////////////////////
+            
+            printf("%s\n",saver);
+            int pos_in_saver=0;
+            int pos_in_result=0;
+            int indent=0;
+            char last_char=0;
+            char* result=starter(10000);
+
+            while(saver[pos_in_saver]!='\0')
+            {
+				//printf(" %c(result:%d) ",saver[pos_in_saver],pos_in_result);
+                if(saver[pos_in_saver]=='{')
+                {
+					if(pos_in_result==0)
+					{
+						result[pos_in_result]='{';
+						pos_in_result++;
+					}
+					else{
+						pos_in_result--;
+						while(pos_in_result>0&&(result[pos_in_result]==' '||result[pos_in_result]=='\t'))
+                    	{
+                        	result[pos_in_result]='\0';///can make some problems in  case of pos==0;
+                        	pos_in_result--;
+                    	}
+						if(pos_in_result==0||result[pos_in_result]=='\n')
+                    	{
+							pos_in_result++;
+							for(int i=0;i<indent;i++)
+                    		{
+                        		result[pos_in_result]='\t';
+                        		pos_in_result++;
+                    		}
+							result[pos_in_result]='{';
+							pos_in_result++;
+						}
+						else
+						{
+							pos_in_result++;
+							for(int i=0;i<indent;i++)
+                    		{
+                        		result[pos_in_result]='\t';
+                        		pos_in_result++;
+                    		}
+							result[pos_in_result]=' ';
+							pos_in_result++;
+							result[pos_in_result]='{';
+							pos_in_result++;
+						}
+					}
+					indent++;
+                    pos_in_saver++;
+					int buff_counter=0;
+					while(saver[pos_in_saver]==' '||saver[pos_in_saver]=='\t')
+					{
+						pos_in_saver++;
+					}
+                    if(saver[pos_in_saver]!='\n')
+                    {
+                        result[pos_in_result]='\n';
+                        pos_in_result++;
+                    }
+                    else
+                    {
+                        //pos_in_saver++;
+                        while(saver[pos_in_saver]=='\n')
+                        {
+                            result[pos_in_result]='\n';
+                            pos_in_result++;
+                            pos_in_saver++;
+                        }
+                    }
+                    while(saver[pos_in_saver]==' '||saver[pos_in_saver]=='\t')
+                    pos_in_saver++;
+                    for(int i=0;i<indent;i++)
+                    {
+                        result[pos_in_result]='\t';
+                        pos_in_result++;
+                    }
+                }
+                else if(saver[pos_in_saver]=='}')
+                {
+                    indent--;
+                    pos_in_saver++;
+                    pos_in_result--;
+                    while(pos_in_result>0&&(result[pos_in_result]==' '||result[pos_in_result]=='\t'))
+                    {
+                        result[pos_in_result]='\0';///can make some problems in  case of pos==0;
+                        pos_in_result--;
+                    }
+                    if(result[pos_in_result]!='\n')
+                    {
+                        pos_in_result++;
+                        result[pos_in_result]='\n';
+                    }
+					pos_in_result++;
+                    for(int i=0;i<indent;i++)
+                    {
+                        result[pos_in_result]='\t';
+                        pos_in_result++;
+                    }
+                    result[pos_in_result]='}';
+					pos_in_result++;
+                    if(saver[pos_in_saver]!='\n')
+                    {
+						result[pos_in_result]='\n';
+						pos_in_result++;
+					}
+					else
+					{
+                    	while(saver[pos_in_saver]=='\n')
+                    	{
+                        	result[pos_in_result]='\n';
+							pos_in_result++;
+                        	pos_in_saver++;
+                    	}
+					}
+                    while(saver[pos_in_saver]==' '||saver[pos_in_saver]=='\t')
+                    pos_in_saver++;
+                    for(int i=0;i<indent;i++)
+                    {
+                        result[pos_in_result]='\t';
+                        pos_in_result++;
+                    }
+                }
+                else if(saver[pos_in_saver]=='\n')
+                {
+                    while(saver[pos_in_saver]=='\n')
+                    {
+                        result[pos_in_result]='\n';
+						//printf("\nits me saving %c(%d)\n",result[pos_in_result],pos_in_result);
+						pos_in_result++;
+                        pos_in_saver++;
+                    }
+                    while(saver[pos_in_saver]==' '||saver[pos_in_saver]=='\t')
+                    pos_in_saver++;
+                    for(int i=0;i<indent;i++)
+                    {
+                        result[pos_in_result]='\t';
+						//printf("\nits me saving %c(%d)\n",result[pos_in_result],pos_in_result);
+                        pos_in_result++;
+                    }
+					continue;
+                }
+                else
+                {
+                    result[pos_in_result]=saver[pos_in_saver];
+					//printf("\nits me saving %c(%d)\n",result[pos_in_result],pos_in_result);
+                    pos_in_saver++;
+                    pos_in_result++;
+                }
+				//////////////////////////////////////////////////////////////////////////////////////////////////
+                int andis=0;
+                for(int i=0;i<shit_counter;i++)
+                {
+                    if(compare_string(all_history[i].file_address,address))
+                    andis=i;
+                }
+
+                all_history[andis].last_content=saver;
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+				file=fopen(address,"w");
+				fputs(result,file);
+				fclose(file);
+				continue;
+
+            }
+            printf("\n==============\n%s\n",result);
+            continue;
+        }
+        if(compare_string("compare",command))
+		{
+			if(!(check_input(" ",1)))
+            {
+                printf("\ndorost voroodi bede dige\n");
+                continue;
+            }
+            //char * content=starter(20000);
+			int flag;
+            char *first_address=give_me_me_the_address_bastard3(&flag);
+			char *second_address=give_me_me_the_address_bastard3(&flag);
+			if(flag)
+			while(getchar()==' ');
+			char* first_content=content_of_file(first_address,100000);
+			char* second_content=content_of_file((second_address),100000);
+
+			printf("%s\n===================\n%s\n",first_content,second_content);
+			int pos_in_first=0;
+			int pos_in_second=0;
+			char* line_saver1=starter(10000);
+			char* line_saver2=starter(10000);
+			int line_number=1;
+			int flag1=0;
+			int flag2=0;
+			while(1)
+			{
+				int counter1=0;
+				int counter2=0;
+				while(first_content[pos_in_first]!='\n')
+				{
+					if(first_content[pos_in_first]=='\0')
+					{
+						flag1=1;
+						break;
+					}
+					line_saver1[counter1]=first_content[pos_in_first];
+					pos_in_first++;
+					counter1++;
+				}
+				line_saver1[counter1]='\n';
+				pos_in_first++;
+				counter1++;
+
+				while(second_content[pos_in_second]!='\n')
+				{
+					if(second_content[pos_in_second]=='\0')
+					{
+						flag2=1;
+						break;
+					}
+					line_saver2[counter2]=second_content[pos_in_second];
+					pos_in_second++;
+					counter2++;
+				}
+				line_saver2[counter2]='\n';
+				pos_in_second++;
+				counter2++;
+
+				if(!compare_string(line_saver1,line_saver2))
+				{
+					printf("============ #%d# ============\n",line_number);
+					printf("%s",line_saver1);
+					printf("%s",(line_saver2));
+				}
+				go_to_starter(line_saver1,10000);
+				go_to_starter(line_saver2,10000);
+				line_number++;
+				if(flag1!=0&&flag2==0)
+				{
+					counter2=0;
+					int adding_line=0;
+					while(second_content[pos_in_second]!='\0')
+					{
+						if(second_content[pos_in_second]=='\n')
+						adding_line++;
+						line_saver2[counter2]=second_content[pos_in_second];
+						pos_in_second++;
+						counter2++;
+					}
+					printf(">>>>>>>>>>>> #%d - #%d >>>>>>>>>>>>\n",line_number,line_number+adding_line);
+					printf("%s\n",line_saver2);
+					break;
+				}
+
+				else if(flag2!=0&&flag1==0)
+				{
+					counter1=0;
+					int adding_line=0;
+					while(first_content[pos_in_first]!='\0')
+					{
+						if(first_content[pos_in_first]=='\n')
+						adding_line++;
+						line_saver1[counter1]=first_content[pos_in_first];
+						pos_in_first++;
+						counter1++;
+					}
+					printf("<<<<<<<<<<<< #%d - #%d <<<<<<<<<<<<\n",line_number,line_number+adding_line);
+					printf("%s\n",line_saver1);
+					break;
+				}
+
+				else if(flag1==1&&flag2==1)
+				break;
+			}
+			continue;
+		}
+		else
         {
             printf("\ntamooom shod. boro birooon\n");
             //break;
