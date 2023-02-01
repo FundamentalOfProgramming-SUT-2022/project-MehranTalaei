@@ -1184,10 +1184,10 @@ char* input_grep(char** command)
 }
 char* input_compare(char** command)
 {
-    if(!(check_input(" /",2,command))) return 0;
+    if(!(check_input(" ",1,command))) return 0;
     char *first_address=give_me_me_the_address_bastard2(command);
     if(!exists(first_address)){printf("\naddress kharab\n");return 0;}
-    if(!(check_input("/",1,command))) return 0;
+    //if(!(check_input("",1,command))) return 0;
     char *second_address=give_me_me_the_address_bastard(command);
     if(!exists(second_address)){printf("\naddress kharab\n");return 0;}
     char* ans=compare(first_address,second_address);
@@ -1195,14 +1195,16 @@ char* input_compare(char** command)
 }
 char* input_tree(char**command)
 {
+    //printf("here  $%s$\n",*command);
     if(!(check_input(" ",1,command)))return 0;
-        int depth;
-        sscanf(*command,"%d",&depth);
-        (*command)+=number_of_digits(depth);
-        if((**command)!='\0'){printf("voroodi bad\n");return 0;}
-        char *ans=starter(100000);
-        tree(".",0,depth,ans);
-        return ans;
+    //printf("here\n");
+    int depth;
+    sscanf(*command,"%d",&depth);
+    (*command)+=number_of_digits(depth);
+    if((**command)!='\0'){printf("voroodi bad\n");return 0;}
+    char *ans=starter(100000);
+    tree("root",0,depth,ans);
+    return ans;
 }
 int main()
 {
@@ -1223,16 +1225,151 @@ int main()
             second_command+=4;
             strcpy(first_command,command);
             int i=0;
-            printf("%d %d\n",t,u);
+            //printf("%d %d\n",t,u);
             while(first_command[i]!='\0')
             {
                 if(i>=t-u)
                 first_command[i]='\0';
                 i++;
             }
-            printf("%s\n%s\n",first_command,second_command);
+            //printf("%s\n%s\n",first_command,second_command);
+            char* type1=sgetword(&first_command);
+            //printf("type1: %s\n",type1);
+            char* output;
+            if(0==strcmp(type1,"cat")){output=input_cat(&first_command);}
+            else if(0==strcmp(type1,"find")){output=input_find(&first_command);}
+            else if(0==strcmp(type1,"grep")){output=input_grep(&first_command);}
+            else if(0==strcmp(type1,"compare")){output=input_compare(&first_command);}
+            else if(0==strcmp(type1,"tree")){output=input_tree(&first_command);}
+            else{printf("invalid command of arman type\n");continue;}
+            //printf("%s",output);
+            char*type2=sgetword(&second_command);
+            strcpy(command,second_command);
+            if(0==strcmp(type2,"insertstr"))
+            {
+                if(!(check_input(" --file /",9,&command))) continue;
+                char* address=give_me_me_the_address_bastard(&command);
+                //printf("%s\n",address);
+                if(!exists(address)) {printf("\naddress kharab\n");  continue;}
+                char* saver=save_file(address);
+                if(!(check_input("-pos ",5,&command)))continue;
+                int line_number,start_position;
+                sscanf(command,"%d",&line_number);
+                command+=number_of_digits(line_number);
+                if(!(check_input(":",1,&command)))continue;
 
+                sscanf(command,"%d",&start_position);
+                command+=number_of_digits(start_position);
+                int a=insert_in_file(line_number,start_position,address,output);
+                if(a)
+                save_in_history(address,saver);
+                continue;
+                }
+            else if(0==strcmp(type2,"find"))
+            {
+                int num_wanted=0;
+            if(!(check_input(" --file /",9,&command)))continue;
+            int type=0;
+            char *address=give_me_me_the_address_bastard(&command);
+            if(!(exists(address)))  {printf("\naddress kharab\n");  continue;}
+            //printf("%s\n",address);
+            char* first_switch=sgetword(&command);
+            if(first_switch[0]!='\0'){
+                if(!strcmp(first_switch,"count")) type+=1;
+                else if(!strcmp(first_switch,"at")){
+                    type+=2;
+                    if(!(check_input(" ",1,&command))) continue;
+                    sscanf(command,"%d",&num_wanted);
+                    command+=number_of_digits(num_wanted);
+                }
+                else if(!strcmp(first_switch,"byword"))type+=4;
+                else if(!strcmp(first_switch,"all"))type+=8;
+                else { printf("switch kharab\n"); continue; }
+                if(!(check_input(" ",1,&command))) continue;
+                char* second_switch=sgetword(&command);
+                if(second_switch[0]!='\0'){
+                    if(!strcmp(second_switch,"-at")){
+                    type+=2;
+                    if(!(check_input(" ",1,&command))) continue;
+                    sscanf(command,"%d",&num_wanted);
+                    command+=number_of_digits(num_wanted);
+                    if(!(check_input(" ",1,&command))) continue;
+                    }
+                    else if(!strcmp(second_switch,"-byword"))type+=4;
+                    else if(!strcmp(second_switch,"-all"))type+=8;
+                    else { printf("switch kharab\n"); continue; }
+                }
+                //printf("%s\n",second_switch);
+                command++;
+                if(sgetchar(&command)!='\0') { printf("switch kharabz\n"); continue; }
+            }
+            char *ans=find(output,address,type,num_wanted);
+            printf("%s",ans);
+            continue;
+            } 
+            else if(0==strcmp(type2,"replace"))
+            {
+                if(!(check_input(" --str1 ",8,&command))) continue;
+                char *first_string=read_content(&command,1);
 
+                if(!(check_input("--file /",8,&command))) continue;
+                char* address=give_me_me_the_address_bastard(&command);
+                if(!exists(address))  {printf("\naddress kharab\n");continue;}
+                int type=0,num_wanted=1;
+                char* saver=save_file(address);
+                char* first_switch=sgetword(&command);
+                if(first_switch[0]!='\0'){
+                if(!strcmp(first_switch,"at")){
+                    type+=2;
+                    if(!(check_input(" ",1,&command))) continue;
+                    sscanf(command,"%d",&num_wanted);
+                    command+=number_of_digits(num_wanted);
+                }
+                else if(!strcmp(first_switch,"all"))type+=8;
+                else { printf("switch kharab\n"); continue; }
+                }
+                //printf("before func\n");
+                int a=replace(first_string,address,type,num_wanted,output);
+                if(a){
+                    printf("its done !\n");
+                    save_in_history(address,saver);
+                    continue;
+                }
+                else{
+                    printf("there is no occurence");
+                    continue;
+                }
+            }
+            else if(0==strcmp(type2,"grep"))
+            {
+                int type=0;
+                int flag=0;
+                if(!(check_input(" ",1,&command))) continue;
+                if(*command=='-'&&*(command+1)=='c'){ type=1;command+=3;}
+                else if(*command=='-'&&*(command+1)=='l') {type=2;command+=3;}
+                else if(*command=='-'&&*(command+1)=='-') {type=0;}
+                else {printf("wrong input\n"); continue;}
+                //printf("yyyyy");
+                //printf(".... %s\n",target);
+                if(!(check_input("--files ",8,&command)))continue;
+                char* addresses[100];
+                int number_of_files=0;
+                while((*command)!='\0')
+                {
+                    addresses[number_of_files]=give_me_me_the_address_bastard2(&command);
+                    number_of_files++;
+                    if(*(command+1)==' '||*(command+1)=='\n'){
+                        printf("voroodi eshtebah\n");
+                        flag=1;break;
+                    }
+                }
+                if(flag)continue;
+                //printf("before\n");
+                char * ans=grep(output,addresses,type,number_of_files);
+                printf("%s",ans);
+                continue;
+            }
+            else{printf("invalide command of second part of arman\n");continue;}
             continue;
         }
         char* type_command=sgetword(&command);
@@ -1247,7 +1384,7 @@ int main()
             create_file(address);
             continue;
         }
-        if(0==strcmp(type_command,"insertstr"))
+        else if(0==strcmp(type_command,"insertstr"))
         {
             if(!(check_input(" --file /",9,&command))) continue;
             char* address=give_me_me_the_address_bastard(&command);
@@ -1270,7 +1407,7 @@ int main()
             save_in_history(address,saver);
             continue;
         }
-        if(0==strcmp(type_command,"cat"))
+        else if(0==strcmp(type_command,"cat"))
         {
             if(!(check_input(" --file /",9,&command)))continue;
             char *address=give_me_me_the_address_bastard(&command);
@@ -1278,7 +1415,7 @@ int main()
             char* ans=save_file(address);
             printf("%s\n",ans);continue;
         }
-        if(0==strcmp(type_command,"removestr"))
+        else if(0==strcmp(type_command,"removestr"))
         {
             if(!(check_input(" --file /",9,&command))) continue;
             char* address=give_me_me_the_address_bastard(&command);
@@ -1306,7 +1443,7 @@ int main()
             save_in_history(address,saver);
             continue;
         }
-        if(0==strcmp(type_command,"copystr"))
+        else if(0==strcmp(type_command,"copystr"))
         {
             if(!(check_input(" --file /",9,&command))) continue;
             char* address=give_me_me_the_address_bastard(&command);
@@ -1331,7 +1468,7 @@ int main()
             int a=copy_from_file(line_number,start_position,address,size,direction,clipboard);
             continue;
         }
-        if(0==strcmp(type_command,"cutstr"))
+        else if(0==strcmp(type_command,"cutstr"))
         {
             if(!(check_input(" --file /",9,&command))) continue;
             char* address=give_me_me_the_address_bastard(&command);
@@ -1358,7 +1495,7 @@ int main()
             save_in_history(address,saver);
             continue;
         }
-        if(0==strcmp(type_command,"pastestr"))
+        else if(0==strcmp(type_command,"pastestr"))
         {
             if(!(check_input(" --file /",9,&command))) continue;
             char* address=give_me_me_the_address_bastard(&command);
@@ -1380,7 +1517,7 @@ int main()
             save_in_history(address,saver);
             continue;
         }
-        if(0==strcmp(type_command,"find"))
+        else if(0==strcmp(type_command,"find"))
         {
             //printf("its in find\n");
             int num_wanted=0;
@@ -1426,7 +1563,7 @@ int main()
             printf("%s",ans);
             continue;
         }
-        if(0==strcmp(type_command,"replace"))
+        else if(0==strcmp(type_command,"replace"))
         {
             //printf("in the main\n");
             if(!(check_input(" --str1 ",8,&command))) continue;
@@ -1457,11 +1594,11 @@ int main()
                 continue;
             }
             else{
-                //printf("there is no occurence");
+                printf("there is no occurence");
                 continue;
             }
         }
-        if(0==strcmp(type_command,"grep"))
+        else if(0==strcmp(type_command,"grep"))
         {
             int type=0;
             int flag=0;
@@ -1487,12 +1624,12 @@ int main()
                 }
             }
             if(flag)continue;
-            printf("before\n");
+            //printf("before\n");
             char * ans=grep(target,addresses,type,number_of_files);
             printf("%s",ans);
             continue;
         }
-        if(0==strcmp(type_command,"undo"))
+        else if(0==strcmp(type_command,"undo"))
         {
             if(!(check_input(" --file /",9,&command)))continue;
             char *address=give_me_me_the_address_bastard(&command);
@@ -1520,7 +1657,7 @@ int main()
             //////////////////////////////////////////////////////////////////////////////////////////////////
             continue;
         }
-        if(0==strcmp(type_command,"auto_indent"))
+        else if(0==strcmp(type_command,"auto_indent"))
         {
             if(!(check_input(" /",2,&command))) continue;
             char* address=give_me_me_the_address_bastard(&command);
@@ -1689,18 +1826,18 @@ int main()
             printf("\n==============\n%s\n",result);
             continue;
         }
-        if(0==strcmp(type_command,"compare"))
+        else if(0==strcmp(type_command,"compare"))
         {
-            if(!(check_input(" /",2,&command))) continue;
+            if(!(check_input(" ",1,&command))) continue;
             char *first_address=give_me_me_the_address_bastard2(&command);
             if(!exists(first_address)){printf("\naddress kharab\n");continue;}
-            if(!(check_input("/",1,&command))) continue;
+            //if(!(check_input("/",1,&command))) continue;
 			char *second_address=give_me_me_the_address_bastard(&command);
             if(!exists(second_address)){printf("\naddress kharab\n");continue;}
             char* ans=compare(first_address,second_address);
             printf("%s",ans);
         }
-        if(0==strcmp(type_command,"tree"))
+        else if(0==strcmp(type_command,"tree"))
         {
             if(!(check_input(" ",1,&command)))continue;
             int depth;
@@ -1711,6 +1848,14 @@ int main()
             tree(".",0,depth,ans);
             printf("%s",ans);
             continue;
+        }
+        else if(0==strcmp(type_command,"end"))
+        {
+            printf("finished\n");
+            break;
+        }
+        else{
+            printf("invalid input\n");
         }
         // if(0==strcmp(type_command,"find2"))
         // {
