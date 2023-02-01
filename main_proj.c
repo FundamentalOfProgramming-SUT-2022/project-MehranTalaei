@@ -126,7 +126,7 @@ char* give_me_me_the_address_bastard(char** s)
         return address;
     //}
 }
-char* read_content(char** s)
+char* read_content(char** s,int type)
 {
     char* ans=(char*)malloc(sizeof(char)*4000);
     for(int i=0;i<4000;i++)
@@ -138,7 +138,12 @@ char* read_content(char** s)
     {
         while((c=sgetchar(s))!='"'&&c!='\0')
         {
-            if(c=='\\')
+            if(type==1 && c=='*')
+            {
+                *(ans+i)=1;
+                i++;
+            }
+            else if(c=='\\')
             {
                 d=sgetchar(s);
                 if(d=='\\')
@@ -156,6 +161,11 @@ char* read_content(char** s)
                 if(d=='"')
                 {
                     *(ans+i)='"';
+                    i++;
+                }
+                if(type==1 && d=='*')
+                {
+                    *(ans+i)='*';
                     i++;
                 }
             }
@@ -165,14 +175,19 @@ char* read_content(char** s)
                 i++;
             }
         }
+        sgetchar(s);
     }
     else
     {
+        if(type==0 || c!='*')
         *(ans+i)=c;
+        else
+        *(ans+i)=1;
         i++;
         while((c=sgetchar(s))!=' '&&c!='\0')
         {
-            if(c=='\\')
+            if(type==1&&c=='*') {*(ans+i)=1;i++;}
+            else if(c=='\\')
             {
                 d=sgetchar(s);
                 if(d=='\\')
@@ -190,6 +205,11 @@ char* read_content(char** s)
                 if(d=='"')
                 {
                     *(ans+i)='"';
+                    i++;
+                }
+                if(type==1&&d=='*')
+                {
+                    *(ans+i)='*';
                     i++;
                 }
             }
@@ -250,6 +270,64 @@ void create_file(char * address)
         all_history[shit_counter].file_address=address;
         shit_counter++;
     }
+}
+int search_for_string_at(char * main_string,char* target_string,int i)
+{
+    for(int j=0;*(target_string+j)!='\0';j++)
+    {
+        if(*(target_string+j)==*(main_string+j+i))
+        continue;
+        else
+        return 0;
+    }
+    return 1;
+}
+void find_lines_of_occurence(char* main_string,char* target_string,int occurences[100])
+{
+    int i=0;
+    int line_number=1;
+    int counter=0;
+    while(main_string[i]!='\0')
+    {
+        if(main_string[i]=='\n')
+        {
+            line_number++;
+        }
+
+        if(search_for_string_at(main_string,target_string,i))
+        {
+            occurences[counter]=line_number;
+            counter++;
+        }
+
+        i++;
+    }
+}
+void khat_k_chap_kon(char* chert,int k)
+{
+    int line_num=1;
+    int i=0;
+    while(chert[i]!='\0')
+    {
+        if(line_num==k)
+        {
+            while(chert[i]!='\n'&&chert[i]!='\0')
+            {
+                printf("%c",chert[i]);
+                i++;
+            }
+            break;
+        }
+        if(chert[i]=='\n')
+        line_num++;
+        i++;
+    }
+
+}
+void occurence_starter(int occurence[],int n)
+{
+    for(int i=0;i<n;i++)
+    occurence[i]=-1;
 }
 char* save_file(char *address)
 {
@@ -369,7 +447,7 @@ void find_all_occurence_Namooos(char * main_string,char* target_string,struct ap
     int word_num=0;
     int char_num=0;
     int extra_num=0;
-    int size=size_of_array(target_string);
+    int size=strlen(target_string);
     char last_char=' ';
     int apperence_num=0;
     int i=0;
@@ -671,15 +749,19 @@ int paste_to_file(int line_number,int start_position,char* address,char* clipboa
     else 
     return 0;
 }
-void find(char *target,char*address,int type,int number_wanted)
+char* find(char *target,char*address,int type,int number_wanted)
 {
+    char* output=starter(100000);
+    char* temp=starter(1000);
+    printf("its in find2\n");
     char* in_the_file=save_file(address);
     struct apperence all_of_wanted[MAX_OCCUR];
     struct_starter(all_of_wanted,MAX_OCCUR);
     find_all_occurence_Namooos(in_the_file,target,all_of_wanted);
     if(type==0){//nothing
         printf("no switch\n");
-        printf("%d\n",all_of_wanted[0].char_number);return;
+        sprintf(temp,"%d\n",all_of_wanted[0].char_number);
+        strcat(output,temp);return output;
     }
     if(type==1){//just count
         int counter=0;
@@ -690,10 +772,93 @@ void find(char *target,char*address,int type,int number_wanted)
             else
             break;
         }
-        printf("%d\n",counter);return;
+        sprintf(output,"%d\n",counter);return output;
     }
     if(type==2){//just at
-        printf("%d\n",all_of_wanted[number_wanted-1].char_number);
+        sprintf(temp,"%d\n",all_of_wanted[number_wanted-1].char_number);
+        strcat(output,temp); return output;
+    }
+    if(type==4){//just by word
+        sprintf(output,"%d\n",all_of_wanted[0].word_number);return output;
+    }
+    if(type==8){//just all
+        int j=0;
+        while(all_of_wanted[j].char_number!=-1)
+        {
+            sprintf(temp,"%d ",all_of_wanted[j].char_number);
+            strcat(output,temp);
+            j++;
+        }
+        strcat(output,"\n");return output;
+    }
+    if(type==6){//at and byword
+        sprintf(output,"%d\n",all_of_wanted[number_wanted-1].word_number);return output ;
+    }
+    if(type==12){//all and byword
+        int j=0;
+        while(all_of_wanted[j].char_number!=-1)
+        {
+            sprintf(temp,"%d ",all_of_wanted[j].word_number);
+            strcat(output,temp);
+            j++;
+        }
+        strcat(output,"\n");return output;
+    }
+}
+int replace(char *target,char*address,int type,int num_wanted,char *second_string)
+{
+    //printf("int the function\n");
+    char* in_the_file=save_file(address);
+    struct apperence all_of_wanted[MAX_OCCUR];
+    struct_starter(all_of_wanted,MAX_OCCUR);
+    find_all_occurence_Namooos(in_the_file,target,all_of_wanted);
+    //printf(">>>> %d\n",all_of_wanted[0].line_number);
+    if(type==0||type==2){
+        if(all_of_wanted[num_wanted-1].line_number==-1)return 0;
+        remove_from_file(all_of_wanted[num_wanted-1].line_number,all_of_wanted[num_wanted-1].pos_in_string,address,all_of_wanted[num_wanted-1].size,'f');
+        insert_in_file(all_of_wanted[num_wanted-1].line_number,all_of_wanted[num_wanted-1].pos_in_string,address,second_string);
+        return 1;
+    }
+    if(type==8){
+        if(all_of_wanted[num_wanted-1].line_number==-1)return 0;
+        int l=0;
+        while(all_of_wanted[l].char_number!=-1)
+        {
+            remove_from_file(all_of_wanted[l].line_number,all_of_wanted[l].pos_in_string,address,all_of_wanted[l].size,'f');
+            insert_in_file(all_of_wanted[l].line_number,all_of_wanted[l].pos_in_string,address,second_string);
+            in_the_file=save_file(address);
+            struct_starter(all_of_wanted,MAX_OCCUR);
+            find_all_occurence_Namooos(in_the_file,target,all_of_wanted);
+        }
+        return 1;
+    }
+}
+char* grep(char *target,char* addresses[],int type,int number_of_files)
+{
+    int files_occurence[100]={0};
+    int lines_occurences[100];
+    char* content_of_file[number_of_files];
+    for(int i=0;i<number_of_files;i++)
+        content_of_file[i]=save_file(addresses[i]);
+    if(type==0)
+    {
+        for(int i=0;i<number_of_files;i++){
+            occurence_starter(lines_occurences,100);
+            find_lines_of_occurence(content_of_file[i],target,lines_occurences);
+
+            if(lines_occurences[0]!=-1)
+            files_occurence[i]=1;
+
+            int s=0;
+            while(lines_occurences[s]!=-1)
+            {
+                printf("%s:",addresses[i]);
+                khat_k_chap_kon(content_of_file[i],lines_occurences[s]);
+                printf("\n");
+                s++;
+            }
+        }
+        return;
     }
 }
 int main()
@@ -721,22 +886,16 @@ int main()
         {
             if(!(check_input(" --file /",9,&command))) continue;
             char* address=give_me_me_the_address_bastard(&command);
-            printf("%s\n",address);
+            //printf("%s\n",address);
             if(!exists(address)) {printf("\naddress kharab\n");  continue;}
             char* saver=save_file(address);
             if(!(check_input("-str ",5,&command)))continue;
-            char* content=read_content(&command);
-            printf("%s",content);
-
-            char check=sgetchar(&command);
-            if(check==' ')  {if(!(check_input("--pos ",6,&command)))continue;}
-            else if(check=='-')  {if(!(check_input("-pos ",5,&command)))continue;}
-            else{printf("\ndorost voroodi bede diger\n");continue;}
-            
+            char* content=read_content(&command,0);
+            //printf("%s\n",content);
+            if(!(check_input("--pos ",6,&command)))continue;
             int line_number,start_position;
             sscanf(command,"%d",&line_number);
             command+=number_of_digits(line_number);
-
             if(!(check_input(":",1,&command)))continue;
 
             sscanf(command,"%d",&start_position);
@@ -855,6 +1014,91 @@ int main()
             if(a)
             save_in_history(address,saver);
             continue;
+        }
+        if(0==strcmp(type_command,"find"))
+        {
+            //printf("its in find\n");
+            int num_wanted=0;
+            if(!(check_input(" --str ",7,&command))) continue;
+            char* target=read_content(&command,1);
+            //printf("its target : %s\n",target);
+            if(!(check_input("--file /",8,&command)))continue;
+            int type=0;
+            char *address=give_me_me_the_address_bastard(&command);
+            if(!(exists(address)))  {printf("\naddress kharab\n");  continue;}
+            //printf("%s\n",address);
+            char* first_switch=sgetword(&command);
+            if(first_switch[0]!='\0'){
+                if(!strcmp(first_switch,"count")) type+=1;
+                else if(!strcmp(first_switch,"at")){
+                    type+=2;
+                    if(!(check_input(" ",1,&command))) continue;
+                    sscanf(command,"%d",&num_wanted);
+                    command+=number_of_digits(num_wanted);
+                }
+                else if(!strcmp(first_switch,"byword"))type+=4;
+                else if(!strcmp(first_switch,"all"))type+=8;
+                else { printf("switch kharab\n"); continue; }
+                if(!(check_input(" ",1,&command))) continue;
+                char* second_switch=sgetword(&command);
+                if(second_switch[0]!='\0'){
+                    if(!strcmp(second_switch,"-at")){
+                    type+=2;
+                    if(!(check_input(" ",1,&command))) continue;
+                    sscanf(command,"%d",&num_wanted);
+                    command+=number_of_digits(num_wanted);
+                    if(!(check_input(" ",1,&command))) continue;
+                    }
+                    else if(!strcmp(second_switch,"-byword"))type+=4;
+                    else if(!strcmp(second_switch,"-all"))type+=8;
+                    else { printf("switch kharab\n"); continue; }
+                }
+                //printf("%s\n",second_switch);
+                command++;
+                if(sgetchar(&command)!='\0') { printf("switch kharabz\n"); continue; }
+            }
+            char *ans=find(target,address,type,num_wanted);
+            printf("%s",ans);
+            continue;
+        }
+        if(0==strcmp(type_command,"replace"))
+        {
+            //printf("in the main\n");
+            if(!(check_input(" --str1 ",8,&command))) continue;
+            char *first_string=read_content(&command,1);
+            if(!(check_input("--str2 ",7,&command))) continue;
+            char* second_string=read_content(&command,1);
+            if(!(check_input("--file /",8,&command))) continue;
+            char* address=give_me_me_the_address_bastard(&command);
+            if(!exists(address))  {printf("\naddress kharab\n");continue;}
+            int type=0,num_wanted=1;
+            char* saver=save_file(address);
+            char* first_switch=sgetword(&command);
+            if(first_switch[0]!='\0'){
+            if(!strcmp(first_switch,"at")){
+                type+=2;
+                if(!(check_input(" ",1,&command))) continue;
+                sscanf(command,"%d",&num_wanted);
+                command+=number_of_digits(num_wanted);
+            }
+            else if(!strcmp(first_switch,"all"))type+=8;
+            else { printf("switch kharab\n"); continue; }
+            }
+            //printf("before func\n");
+            int a=replace(first_string,address,type,num_wanted,second_string);
+            if(a){
+                printf("its done !\n");
+                save_in_history(address,saver);
+                continue;
+            }
+            else{
+                //printf("there is no occurence");
+                continue;
+            }
+        }
+        if(0==strcmp(type_command,"grep"))
+        {
+            
         }
     }
 }
