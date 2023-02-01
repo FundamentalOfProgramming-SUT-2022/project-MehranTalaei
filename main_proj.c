@@ -23,6 +23,11 @@ char* starter(int n)
     *(a+i)='\0';
     return a;
 }
+int go_to_starter(char* s,int n)
+{
+    for(int i=0;i<n;i++)
+    *(s+i)='\0';
+}
 char sgetchar(char**s)
 {
     char c=**s;
@@ -113,6 +118,29 @@ char* give_me_me_the_address_bastard(char** s)
         char c;
         int i=0;
         while((c=sgetchar(s))!='\n' && c!='-' && c!='\0')
+        {
+            if(c!='"');
+            {
+                *(address+i)=c;
+                i++;
+            }
+        }
+        int n=strlen(address);
+        if(c!='\n')
+        address[n]='\0';
+        return address;
+    //}
+}
+char* give_me_me_the_address_bastard2(char** s)
+{
+    char * address=starter(120);
+    for(int i=0;i<120;i++)
+    *(address+i)='\0';
+    //if((*address=getchar())!='"')
+    //{
+        char c;
+        int i=0;
+        while((c=sgetchar(s))!='\n' && c!=' ' && c!='\0')
         {
             if(c!='"');
             {
@@ -298,13 +326,19 @@ void find_lines_of_occurence(char* main_string,char* target_string,int occurence
         {
             occurences[counter]=line_number;
             counter++;
+            /////
+            while(main_string[i]!='\n')
+            i++;
+            continue;
         }
 
         i++;
     }
 }
-void khat_k_chap_kon(char* chert,int k)
+char * khat_k_chap_kon(char* chert,int k)
 {
+    char* output=starter(100000);
+    char* temp=starter(1000);
     int line_num=1;
     int i=0;
     while(chert[i]!='\0')
@@ -313,7 +347,8 @@ void khat_k_chap_kon(char* chert,int k)
         {
             while(chert[i]!='\n'&&chert[i]!='\0')
             {
-                printf("%c",chert[i]);
+                sprintf(temp,"%c",chert[i]);
+                strcat(output,temp);
                 i++;
             }
             break;
@@ -322,7 +357,7 @@ void khat_k_chap_kon(char* chert,int k)
         line_num++;
         i++;
     }
-
+    return output;
 }
 void occurence_starter(int occurence[],int n)
 {
@@ -349,13 +384,19 @@ char* save_file(char *address)
 }
 void save_in_history(char* address,char * content_to_save)
 {
-    int andis=0;
+    int andis=-1;
     for(int i=0;i<shit_counter;i++)
     {
         if(!strcmp(all_history[i].file_address,address))
         andis=i;
     }
+    if(andis>=0)
     all_history[andis].last_content=content_to_save;
+    else{
+        all_history[shit_counter].file_address=address;
+        all_history[shit_counter].last_content=content_to_save;
+        shit_counter++;
+    }
     return;
 }
 int Namooos_search_for_string_at_bad(char * main_string,char* target_string,int shift,int* extra_char)
@@ -411,7 +452,7 @@ int Namooos_search_for_string_at_bad(char * main_string,char* target_string,int 
                 //last_mod=0;
                 //printf("**");
                 j++;
-                while(main_string[loc_of_main]!=' '&&main_string[loc_of_main]!='\n'&&main_string[loc_of_main]!='\0')   
+                while(main_string[loc_of_main]!=' '&&main_string[loc_of_main]!='\n'&&main_string[loc_of_main]!='\0')
                 {
                     loc_of_main++;
                     (*extra_char)++;
@@ -521,7 +562,7 @@ int insert_in_file(int line_number,int start_position,char* address,char* conten
             current_position=0;
             i++;
         }
-        else 
+        else
         {
             current_position++;
             i++;
@@ -581,7 +622,7 @@ int remove_from_file(int line_number,int start_position,char* address,int size,c
             i++;
             size_of_before++;
         }
-        else 
+        else
         {
             current_position++;
             i++;
@@ -601,7 +642,7 @@ int remove_from_file(int line_number,int start_position,char* address,int size,c
         size_of_after++;
     }
     fclose(mainfile);
-    
+
     //printf("\n%s\n%s\n",before,after);
     //printf("%d\n",size);
     ///////////////////neveshtan
@@ -675,7 +716,7 @@ int copy_from_file(int line_number,int start_position,char* address,int size,cha
                     i++;
                     size_of_before++;
                 }
-                else 
+                else
                 {
                     current_position++;
                     i++;
@@ -737,7 +778,7 @@ int cut_from_file(int line_number,int start_position,char* address,int size,char
     int b=remove_from_file(line_number,start_position,address,size,direction);
     if(a&&b)
     return 1;
-    else 
+    else
     return 0;
 }
 int paste_to_file(int line_number,int start_position,char* address,char* clipboard)
@@ -746,7 +787,7 @@ int paste_to_file(int line_number,int start_position,char* address,char* clipboa
     int a=insert_in_file(line_number,start_position,address,clipboard);
     if(a)
     return 1;
-    else 
+    else
     return 0;
 }
 char* find(char *target,char*address,int type,int number_wanted)
@@ -835,6 +876,8 @@ int replace(char *target,char*address,int type,int num_wanted,char *second_strin
 }
 char* grep(char *target,char* addresses[],int type,int number_of_files)
 {
+    char* output=starter(100000);
+    char* temp=starter(1000);
     int files_occurence[100]={0};
     int lines_occurences[100];
     char* content_of_file[number_of_files];
@@ -845,21 +888,321 @@ char* grep(char *target,char* addresses[],int type,int number_of_files)
         for(int i=0;i<number_of_files;i++){
             occurence_starter(lines_occurences,100);
             find_lines_of_occurence(content_of_file[i],target,lines_occurences);
-
             if(lines_occurences[0]!=-1)
             files_occurence[i]=1;
 
             int s=0;
             while(lines_occurences[s]!=-1)
             {
-                printf("%s:",addresses[i]);
-                khat_k_chap_kon(content_of_file[i],lines_occurences[s]);
-                printf("\n");
+                sprintf(temp,"%s:",addresses[i]);
+                strcat(output,temp);
+                char* khat=khat_k_chap_kon(content_of_file[i],lines_occurences[s]);
+                strcat(output,khat);
+                sprintf(temp,"\n");
+                strcat(output,temp);
                 s++;
             }
         }
-        return;
+        return output;
     }
+    if(type==1)
+    {
+        int ans=0;
+        for(int i=0;i<number_of_files;i++)
+        {
+            occurence_starter(lines_occurences,100);
+            find_lines_of_occurence(content_of_file[i],target,lines_occurences);
+            int s=0;
+            while(lines_occurences[s]!=-1)
+            {
+                ans++;
+                s++;
+            }
+        }
+        sprintf(output,"%d\n",ans);
+        return output;
+    }
+    if(type==2)
+    {
+        for(int i=0;i<number_of_files;i++)
+        {
+            if(files_occurence[i]!=-1)
+            {
+                sprintf(temp,"%s ",addresses[i]);
+                strcat(output,temp);
+            }
+        }
+        sprintf(temp,"\n");
+        strcat(output,temp);
+        return output;
+    }
+
+}
+char* compare(char* first_address,char* second_address)
+{
+    char* output=starter(100000);
+    char* temp=starter(1000);
+    char* first_content=save_file(first_address);
+	char* second_content=save_file((second_address));
+    //printf("%s\n===================\n%s\n",first_content,second_content);
+    int pos_in_first=0;
+    int pos_in_second=0;
+    char* line_saver1=starter(10000);
+    char* line_saver2=starter(10000);
+    int line_number=1;
+    int flag1=0;
+    int flag2=0;
+    while(1)
+    {
+        int counter1=0;
+        int counter2=0;
+        while(first_content[pos_in_first]!='\n')
+        {
+            if(first_content[pos_in_first]=='\0')
+            {
+                flag1=1;
+                break;
+            }
+            line_saver1[counter1]=first_content[pos_in_first];
+            pos_in_first++;
+            counter1++;
+        }
+        line_saver1[counter1]='\n';
+        pos_in_first++;
+        counter1++;
+
+        while(second_content[pos_in_second]!='\n')
+        {
+            if(second_content[pos_in_second]=='\0')
+            {
+                flag2=1;
+                break;
+            }
+            line_saver2[counter2]=second_content[pos_in_second];
+            pos_in_second++;
+            counter2++;
+        }
+        line_saver2[counter2]='\n';
+        pos_in_second++;
+        counter2++;
+
+        if(strcmp(line_saver1,line_saver2))
+        {
+            sprintf(temp,"============ #%d# ============\n",line_number);strcat(output,temp);
+            sprintf(temp,"%s",line_saver1);strcat(output,temp);
+            sprintf(temp,"%s",(line_saver2));strcat(output,temp);
+        }
+        go_to_starter(line_saver1,10000);
+        go_to_starter(line_saver2,10000);
+        line_number++;
+        if(flag1!=0&&flag2==0)
+        {
+            counter2=0;
+            int adding_line=0;
+            while(second_content[pos_in_second]!='\0')
+            {
+                if(second_content[pos_in_second]=='\n')
+                adding_line++;
+                line_saver2[counter2]=second_content[pos_in_second];
+                pos_in_second++;
+                counter2++;
+            }
+            sprintf(temp,">>>>>>>>>>>> #%d - #%d >>>>>>>>>>>>\n",line_number,line_number+adding_line);strcat(output,temp);
+            sprintf(temp,"%s\n",line_saver2);strcat(output,temp);
+            break;
+        }
+
+        else if(flag2!=0&&flag1==0)
+        {
+            counter1=0;
+            int adding_line=0;
+            while(first_content[pos_in_first]!='\0')
+            {
+                if(first_content[pos_in_first]=='\n')
+                adding_line++;
+                line_saver1[counter1]=first_content[pos_in_first];
+                pos_in_first++;
+                counter1++;
+            }
+            sprintf(temp,"<<<<<<<<<<<< #%d - #%d <<<<<<<<<<<<\n",line_number,line_number+adding_line);strcat(output,temp);
+            sprintf(temp,"%s\n",line_saver1);strcat(output,temp);
+            break;
+        }
+
+        else if(flag1==1&&flag2==1)
+        break;
+    }
+    return output;
+}
+char* tree(char *address, int current_root,int depth,char *output)
+{
+    char* temp=starter(1000);
+    if(depth<=0)return output;
+    int i;
+    char next_address[1000];
+    struct dirent* current_file;
+
+    DIR* dir= opendir(address);
+    if (!dir)return output;
+    while ((current_file = readdir(dir)) != NULL){
+        if (strcmp(current_file->d_name,".") != 0 && strcmp(current_file->d_name,"..") != 0){
+            for (i=0; i<current_root; i++) {
+                if (i%2 == 0 || i == 0){
+                    sprintf(temp,"%c", 179);// >> | <<
+                    strcat(output,temp);
+                }
+                else{
+                    sprintf(temp," ");
+                    strcat(output,temp);
+                }
+            }
+            sprintf(temp,"%c%c%s\n",195,196,current_file->d_name); // 195: >> ├ <<    //196: >> ─ <<
+            strcat(output,temp);
+            strcpy(next_address,address);
+            strcat(next_address,"/");
+            strcat(next_address,current_file->d_name);
+            tree(next_address,current_root + 2,depth-1,output);
+        }
+    }
+    closedir(dir);
+}
+char* input_cat(char**command)
+{
+    if(!(check_input(" --file /",9,command)))return 0;
+    char *address=give_me_me_the_address_bastard(command);
+    if(!(exists(address)))  {printf("\naddress kharab\n");return 0;}
+    char* ans=save_file(address);
+    return ans;
+}
+char* input_find(char** command)
+{
+    int num_wanted=0;
+    if(!(check_input(" --str ",7,command))) return 0;
+    char* target=read_content(command,1);
+    //printf("its target : %s\n",target);
+    if(!(check_input("--file /",8,command)))return 0;
+    int type=0;
+    char *address=give_me_me_the_address_bastard(command);
+    if(!(exists(address)))  {printf("\naddress kharab\n");  return 0;}
+    //printf("%s\n",address);
+    char* first_switch=sgetword(command);
+    if(first_switch[0]!='\0'){
+        if(!strcmp(first_switch,"count")) type+=1;
+        else if(!strcmp(first_switch,"at")){
+            type+=2;
+            if(!(check_input(" ",1,command))) return 0 ;
+            sscanf(*command,"%d",&num_wanted);
+            *command+=number_of_digits(num_wanted);
+        }
+        else if(!strcmp(first_switch,"byword"))type+=4;
+        else if(!strcmp(first_switch,"all"))type+=8;
+        else { printf("switch kharab\n"); return 0; }
+        if(!(check_input(" ",1,command))) return 0;
+        char* second_switch=sgetword(command);
+        if(second_switch[0]!='\0'){
+            if(!strcmp(second_switch,"-at")){
+            type+=2;
+            if(!(check_input(" ",1,command))) return 0;
+            sscanf(*command,"%d",&num_wanted);
+            *command+=number_of_digits(num_wanted);
+            if(!(check_input(" ",1,command))) return 0;
+            }
+            else if(!strcmp(second_switch,"-byword"))type+=4;
+            else if(!strcmp(second_switch,"-all"))type+=8;
+            else { printf("switch kharab\n"); return 0; }
+        }
+        //printf("%s\n",second_switch);
+        (*command)++;
+        if(sgetchar(command)!='\0') { printf("switch kharabz\n"); return 0; }
+    }
+    char *ans=find(target,address,type,num_wanted);
+    return ans;
+}
+char* input_replace(char** command)
+{
+    //printf("in the main\n");
+    if(!(check_input(" --str1 ",8,command))) return 0;
+    char *first_string=read_content(command,1);
+    if(!(check_input("--str2 ",7,command))) return 0;
+    char* second_string=read_content(command,1);
+    if(!(check_input("--file /",8,command))) return 0;
+    char* address=give_me_me_the_address_bastard(command);
+    if(!exists(address))  {printf("\naddress kharab\n");return 0;}
+    int type=0,num_wanted=1;
+    char* saver=save_file(address);
+    char* first_switch=sgetword(command);
+    if(first_switch[0]!='\0'){
+    if(!strcmp(first_switch,"at")){
+        type+=2;
+        if(!(check_input(" ",1,command))) return 0;
+        sscanf(*command,"%d",num_wanted);
+        (*command)+=number_of_digits(num_wanted);
+    }
+    else if(!strcmp(first_switch,"all"))type+=8;
+    else { printf("switch kharab\n"); return 0; }
+    }
+    //printf("before func\n");
+    int a=replace(first_string,address,type,num_wanted,second_string);
+    if(a){
+        printf("its done !\n");
+        save_in_history(address,saver);
+        return 0;
+    }
+    else{
+        //printf("there is no occurence");
+        return 0;
+    }
+}
+char* input_grep(char** command)
+{
+    int type=0;
+            int flag=0;
+            if(!(check_input(" ",1,command))) return 0;
+            if(**command=='-'&&*(*command+1)=='c'){ type=1;(*command)+=3;}
+            else if(**command=='-'&&*((*command)+1)=='l') {type=2;(*command)+=3;}
+            else if(**command=='-'&&*((*command+1))=='-') {type=0;}
+            else {printf("wrong input\n"); return 0;}
+            //printf("yyyyy");
+            if(!(check_input("--str ",6,command)))  return 0;
+            char* target=read_content(command,0);
+            //printf(".... %s\n",target);
+            if(!(check_input("--files ",8,command)))return 0;
+            char* addresses[100];
+            int number_of_files=0;
+            while((**command)!='\0')
+            {
+                addresses[number_of_files]=give_me_me_the_address_bastard2(command);
+                number_of_files++;
+                if(*((*command)+1)==' '||*((*command)+1)=='\n'){
+                    printf("voroodi eshtebah\n");
+                    flag=1;break;
+                }
+            }
+            if(flag) return 0;
+            char * ans=grep(target,addresses,type,number_of_files);
+            return ans;
+}
+char* input_compare(char** command)
+{
+    if(!(check_input(" /",2,command))) return 0;
+    char *first_address=give_me_me_the_address_bastard2(command);
+    if(!exists(first_address)){printf("\naddress kharab\n");return 0;}
+    if(!(check_input("/",1,command))) return 0;
+    char *second_address=give_me_me_the_address_bastard(command);
+    if(!exists(second_address)){printf("\naddress kharab\n");return 0;}
+    char* ans=compare(first_address,second_address);
+    return ans;
+}
+char* input_tree(char**command)
+{
+    if(!(check_input(" ",1,command)))return 0;
+        int depth;
+        sscanf(*command,"%d",&depth);
+        (*command)+=number_of_digits(depth);
+        if((**command)!='\0'){printf("voroodi bad\n");return 0;}
+        char *ans=starter(100000);
+        tree(".",0,depth,ans);
+        return ans;
 }
 int main()
 {
@@ -870,6 +1213,28 @@ int main()
     {
         gets(command);
         strcpy(backup_command,command);
+        if(strstr(command," =D ")!=NULL)
+        {
+            int t=strlen(command);
+            char* first_command=starter(500);
+            char* second_command=starter(500);
+            second_command=strstr(command," =D ");
+            int u=strlen(second_command);
+            second_command+=4;
+            strcpy(first_command,command);
+            int i=0;
+            printf("%d %d\n",t,u);
+            while(first_command[i]!='\0')
+            {
+                if(i>=t-u)
+                first_command[i]='\0';
+                i++;
+            }
+            printf("%s\n%s\n",first_command,second_command);
+
+
+            continue;
+        }
         char* type_command=sgetword(&command);
         //printf("%s\n%s",command,type_command);
         if(0==strcmp(type_command,"createfile"))
@@ -1001,7 +1366,7 @@ int main()
             if(!exists(address)) {printf("\naddress kharab\n");  continue;}
             char* saver=save_file(address);
              if(!(check_input("-pos ",5,&command)))continue;
-            
+
             int line_number,start_position;
             sscanf(command,"%d",&line_number);
             command+=number_of_digits(line_number);
@@ -1098,7 +1463,274 @@ int main()
         }
         if(0==strcmp(type_command,"grep"))
         {
-            
+            int type=0;
+            int flag=0;
+            if(!(check_input(" ",1,&command))) continue;
+            if(*command=='-'&&*(command+1)=='c'){ type=1;command+=3;}
+            else if(*command=='-'&&*(command+1)=='l') {type=2;command+=3;}
+            else if(*command=='-'&&*(command+1)=='-') {type=0;}
+            else {printf("wrong input\n"); continue;}
+            //printf("yyyyy");
+            if(!(check_input("--str ",6,&command)))  continue;
+            char* target=read_content(&command,0);
+            //printf(".... %s\n",target);
+            if(!(check_input("--files ",8,&command)))continue;
+            char* addresses[100];
+            int number_of_files=0;
+            while((*command)!='\0')
+            {
+                addresses[number_of_files]=give_me_me_the_address_bastard2(&command);
+                number_of_files++;
+                if(*(command+1)==' '||*(command+1)=='\n'){
+                    printf("voroodi eshtebah\n");
+                    flag=1;break;
+                }
+            }
+            if(flag)continue;
+            printf("before\n");
+            char * ans=grep(target,addresses,type,number_of_files);
+            printf("%s",ans);
+            continue;
         }
+        if(0==strcmp(type_command,"undo"))
+        {
+            if(!(check_input(" --file /",9,&command)))continue;
+            char *address=give_me_me_the_address_bastard(&command);
+            if(!(exists(address))) {printf("\naddress kharab\n");continue;}
+            char* saver=save_file(address);
+
+            FILE* file;
+            int andis=-1;
+            for(int i=0;i<shit_counter;i++)
+            {
+                if(!strcmp(all_history[i].file_address,address))
+                andis=i;
+            }
+            if(andis==-1){
+                printf("no changes yet\n");continue;
+                //save_in_history(address,saver);
+            }
+            //printf(">>>> %s\n",all_history[andis].file_address);
+            //printf(">>>> %s\n",all_history[andis].last_content);
+            file=fopen(address,"w");
+            fputs(all_history[andis].last_content,file);
+            fclose(file);
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+                all_history[andis].last_content=saver;
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+            continue;
+        }
+        if(0==strcmp(type_command,"auto_indent"))
+        {
+            if(!(check_input(" /",2,&command))) continue;
+            char* address=give_me_me_the_address_bastard(&command);
+            if(!exists(address)){printf("\naddress kharab\n");continue;}
+            ///////////////////////////////////////////////////////////////
+            char* saver=save_file(address);
+            //printf("%s\n",saver);
+            int pos_in_saver=0;
+            int pos_in_result=0;
+            int indent=0;
+            char last_char=0;
+            char* result=starter(10000);
+            while(saver[pos_in_saver]!='\0')
+            {
+				//printf(" %c(result:%d) ",saver[pos_in_saver],pos_in_result);
+                if(saver[pos_in_saver]=='{')
+                {
+					if(pos_in_result==0)
+					{
+						result[pos_in_result]='{';
+						pos_in_result++;
+					}
+					else{
+						pos_in_result--;
+						while(pos_in_result>0&&(result[pos_in_result]==' '||result[pos_in_result]=='\t'))
+                    	{
+                        	result[pos_in_result]='\0';///can make some problems in  case of pos==0;
+                        	pos_in_result--;
+                    	}
+						if(pos_in_result==0||result[pos_in_result]=='\n')
+                    	{
+							pos_in_result++;
+							for(int i=0;i<indent;i++)
+                    		{
+                        		result[pos_in_result]='\t';
+                        		pos_in_result++;
+                    		}
+							result[pos_in_result]='{';
+							pos_in_result++;
+						}
+						else
+						{
+							pos_in_result++;
+							for(int i=0;i<indent;i++)
+                    		{
+                        		result[pos_in_result]='\t';
+                        		pos_in_result++;
+                    		}
+							result[pos_in_result]=' ';
+							pos_in_result++;
+							result[pos_in_result]='{';
+							pos_in_result++;
+						}
+					}
+					indent++;
+                    pos_in_saver++;
+					int buff_counter=0;
+					while(saver[pos_in_saver]==' '||saver[pos_in_saver]=='\t')
+					{
+						pos_in_saver++;
+					}
+                    if(saver[pos_in_saver]!='\n')
+                    {
+                        result[pos_in_result]='\n';
+                        pos_in_result++;
+                    }
+                    else
+                    {
+                        //pos_in_saver++;
+                        while(saver[pos_in_saver]=='\n')
+                        {
+                            result[pos_in_result]='\n';
+                            pos_in_result++;
+                            pos_in_saver++;
+                        }
+                    }
+                    while(saver[pos_in_saver]==' '||saver[pos_in_saver]=='\t')
+                    pos_in_saver++;
+                    for(int i=0;i<indent;i++)
+                    {
+                        result[pos_in_result]='\t';
+                        pos_in_result++;
+                    }
+                }
+                else if(saver[pos_in_saver]=='}')
+                {
+                    indent--;
+                    pos_in_saver++;
+                    pos_in_result--;
+                    while(pos_in_result>0&&(result[pos_in_result]==' '||result[pos_in_result]=='\t'))
+                    {
+                        result[pos_in_result]='\0';///can make some problems in  case of pos==0;
+                        pos_in_result--;
+                    }
+                    if(result[pos_in_result]!='\n')
+                    {
+                        pos_in_result++;
+                        result[pos_in_result]='\n';
+                    }
+					pos_in_result++;
+                    for(int i=0;i<indent;i++)
+                    {
+                        result[pos_in_result]='\t';
+                        pos_in_result++;
+                    }
+                    result[pos_in_result]='}';
+					pos_in_result++;
+                    if(saver[pos_in_saver]!='\n')
+                    {
+						result[pos_in_result]='\n';
+						pos_in_result++;
+					}
+					else
+					{
+                    	while(saver[pos_in_saver]=='\n')
+                    	{
+                        	result[pos_in_result]='\n';
+							pos_in_result++;
+                        	pos_in_saver++;
+                    	}
+					}
+                    while(saver[pos_in_saver]==' '||saver[pos_in_saver]=='\t')
+                    pos_in_saver++;
+                    for(int i=0;i<indent;i++)
+                    {
+                        result[pos_in_result]='\t';
+                        pos_in_result++;
+                    }
+                }
+                else if(saver[pos_in_saver]=='\n')
+                {
+                    while(saver[pos_in_saver]=='\n')
+                    {
+                        result[pos_in_result]='\n';
+						//printf("\nits me saving %c(%d)\n",result[pos_in_result],pos_in_result);
+						pos_in_result++;
+                        pos_in_saver++;
+                    }
+                    while(saver[pos_in_saver]==' '||saver[pos_in_saver]=='\t')
+                    pos_in_saver++;
+                    for(int i=0;i<indent;i++)
+                    {
+                        result[pos_in_result]='\t';
+						//printf("\nits me saving %c(%d)\n",result[pos_in_result],pos_in_result);
+                        pos_in_result++;
+                    }
+					continue;
+                }
+                else
+                {
+                    result[pos_in_result]=saver[pos_in_saver];
+					//printf("\nits me saving %c(%d)\n",result[pos_in_result],pos_in_result);
+                    pos_in_saver++;
+                    pos_in_result++;
+                }
+				//////////////////////////////////////////////////////////////////////////////////////////////////
+                save_in_history(address,saver);
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+				FILE* file;
+                file=fopen(address,"w");
+				fputs(result,file);
+				fclose(file);
+				continue;
+
+            }
+            printf("\n==============\n%s\n",result);
+            continue;
+        }
+        if(0==strcmp(type_command,"compare"))
+        {
+            if(!(check_input(" /",2,&command))) continue;
+            char *first_address=give_me_me_the_address_bastard2(&command);
+            if(!exists(first_address)){printf("\naddress kharab\n");continue;}
+            if(!(check_input("/",1,&command))) continue;
+			char *second_address=give_me_me_the_address_bastard(&command);
+            if(!exists(second_address)){printf("\naddress kharab\n");continue;}
+            char* ans=compare(first_address,second_address);
+            printf("%s",ans);
+        }
+        if(0==strcmp(type_command,"tree"))
+        {
+            if(!(check_input(" ",1,&command)))continue;
+            int depth;
+            sscanf(command,"%d",&depth);
+            command+=number_of_digits(depth);
+            if(*command!='\0'){printf("voroodi bad\n");continue;}
+            char *ans=starter(100000);
+            tree(".",0,depth,ans);
+            printf("%s",ans);
+            continue;
+        }
+        // if(0==strcmp(type_command,"find2"))
+        // {
+        //     char*a=input_find(&command);
+        //     printf("%s",a);
+        // }
+        // if(0==strcmp(type_command,"grep2"))
+        // {
+        //     char* a=input_grep(&command);
+        //     printf("%s",a);
+        // }
+        // if(0==strcmp(type_command,"compare2"))
+        // {
+        //     char* ans=input_compare(&command);
+        //     printf("%s",ans);
+        // }
+        // if(0==strcmp(type_command,"tree2"))
+        // {
+        //     char *ans=input_tree(&command);
+        //     printf("%s",ans);
+        // }
     }
 }
